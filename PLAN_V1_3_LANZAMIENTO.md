@@ -57,3 +57,20 @@ Convertir la aventura narrativa en un RPG narrativo realmente explorable sin ree
 - Página comercial `/las-casas-del-reino` creada en Lovable con CTA DESHABILITADO («Próximamente»), precio previsto 2 € y nombres canónicos de las Cinco Casas. Todavía sin activación de venta ni prueba de entrega.
 - Pendiente: entrega privada del artefacto V1.3 (el GitHub fuente sigue siendo PÚBLICO), compra test realista + validación de sesión/comprador, reabrir el juego en móvil, migración exportar/importar beta -> web comercial, fiscalidad/condiciones de venta.
 - Bloqueo temporal: workspace Lovable sin créditos para más ediciones. Stripe Holos comprobado en modo real, catálogo legible, sin producto `Las Casas del Reino` verificado. No habilitar pagos ni publicar hasta superar pruebas y validar operación.
+
+## Ampliación de Calcáneo · 15 de octubre (tarde)
+
+Se continúa **exclusivamente el desarrollo narrativo y jugable**. Web, Stripe y lanzamiento comercial quedan expresamente aplazados al fin de semana.
+
+### Cambios incorporados
+- `d785149`: Ordan recuerda cómo lo trataste en la entrada; Garra reacciona a las conclusiones del enigma; una investigación contrastada desbloquea la respuesta especial de Garra en c7 y deja ecos en Consejo, Ordan y camino a Quinto Radio.
+- `c87406b`: conversaciones **opcionales y únicas** con Ordan (tras investigar una estancia) y Garra (tras resolver el enigma y alcanzar su llegada en la crónica). Persisten en `exploreV12.calcaneo.dialogues` y en el Diario; tienen consecuencias en pistas, confianza o alarma; no bloquean la historia.
+- `e09a655`: el testimonio obtenido al conversar con Ordan abre una cuarta resolución posible ante el Consejo en c8. Garra y Ordan responden a estas conversaciones en c7/c8/c10. Mantener el canon y el hecho de que un testimonio no demuestra por sí solo una causa clínica.
+
+### Comprobación controlada
+- 48 de 48 rutas completas, 216 escenas registradas, sin destino inexistente ni errores de ejecución.
+- Una ruta especial completada con dos conversaciones, dos pistas, enigma, opción única de Garra y respuesta especial de Ordan en el Consejo; guardado y recuperación correctos.
+- Las 12 variantes de desenlace verificadas alcanzables en 98 simulaciones.
+- Almacenamiento local antiguo recuperable; no cambia su clave.
+- **Pendiente** prueba VISUAL en Android/iOS y navegador. No presentar las simulaciones como ensayo real de interfaz.
+- La rama `main` sigue siendo la beta pública; no fusionar sin pruebas y autorización.
