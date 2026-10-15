@@ -85,3 +85,15 @@ Se mantiene el alcance exclusivamente jugable. No tocar web, Stripe ni publicaci
 - QA del motor: 48 rutas completas sin bloqueos, 216 escenas existentes sin destinos inexistentes, recuperación de partidas anteriores y de los nuevos eventos. Una ruta de juego especial completa en Quinto con enigma, diálogos y pacto de Nyra. Los 12 desenlaces siguieron alcanzables en 212 simulaciones.
 - Pruebas pendientes: ejecutar visualmente en Android, iOS y escritorio, con foco en distribución táctil de las nuevas tarjetas y guardado al cerrar el navegador. No equiparar pruebas del motor con navegador real.
 - Arquitectura sin cambios: código solo en rama `desarrollo-v1-3-lanzamiento`; beta `main` intacta, sin despliegue público de V1.3.
+
+## Ampliación de Hallux · 15 de octubre (noche)
+
+Alcance de esta tanda: **solamente videojuego**, sin cambios de web ni Stripe.
+
+- `cf48009` — Lady Filo y los guardias reconocen los informes y la alianza de Nyra. Opciones especiales en h1 (acuerdo de relevos), h7 (llegada de Taren comprobada) y h9 (dossier cooperativo con Filo, Nyra o Senda). La respuesta especial se conserva hasta Diafragma por medio de `bridge_d`.
+- `4e07dc0` — Casa Hallux obtiene enigma opcional tras explorar **Plataforma estrecha** y **Línea de Senda**, sobre distinguir fuerza, preparación, dirección y seguridad de la llegada; acertar conserva pista `direccion` y estado `v13HalluxEnigmaOrientado`. Las interpretaciones prematuras tienen consecuencias sin provocar bloqueo.
+- `4e07dc0` — Conversaciones opcionales con **Lady Filo** y **Maestro Senda**. Se conservan bajo `exploreV12.hallux.dialogues` y en el Diario. Escuchar a Filo desbloquea `v13FiloEscuchada`; investigar con Senda desbloquea `v13SendaEnsayo`. Solo puede tenerse una conversación resolutiva por personaje.
+- Verificación: 48/48 rutas completas, 216 escenas sin destinos rotos; ruta de Hallux con enigma, ambas conversaciones, rescate de Taren, informe de cooperación y guardado/restauración completos; la opción equivocada no bloquea.
+- Finales: 12/12 variantes alcanzables en 102 recorridos simulados.
+- Se conserva la clave local de guardado de V1.2. La beta en `main` sigue intacta. No desplegar ni fusionar sin permiso explícito.
+- **Pendiente**: verificar visualmente en navegador de móvil y escritorio, con especial atención a interfaz de conversaciones y a guardado/reapertura; comprobar efectos reales de sonido y rendimiento.
