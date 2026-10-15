@@ -74,3 +74,14 @@ Se continúa **exclusivamente el desarrollo narrativo y jugable**. Web, Stripe y
 - Almacenamiento local antiguo recuperable; no cambia su clave.
 - **Pendiente** prueba VISUAL en Android/iOS y navegador. No presentar las simulaciones como ensayo real de interfaz.
 - La rama `main` sigue siendo la beta pública; no fusionar sin pruebas y autorización.
+
+## Ampliación de Quinto Radio · 15 de octubre (noche)
+
+Se mantiene el alcance exclusivamente jugable. No tocar web, Stripe ni publicaciones.
+
+- `38a35e8`: llegada a Muralla Roja con reputación desde Calcáneo. Rusk y Nyra reconocen informe contrastado de Garra, participación de Ordan y modo de llegada. Se añaden opciones condicionadas en q1 (informe avalado), q7 (enigma de la Muralla) y q8 (alianza de relevo con Nyra), con consecuencias en q10 y transición hacia Casa Hallux.
+- `114252d`: nuevo enigma OPCIONAL de Quinto Radio tras explorar Adarve y Junta ennegrecida. La respuesta contrastada ofrece una pista y opción especial en q7; las conclusiones precipitadas aumentan alarma sin impedir continuar.
+- `114252d`: conversaciones opcionales con Nyra y Rusk, guardadas en `exploreV12.quinto.dialogues`. Escuchar a Nyra desbloquea negociación especial en q8. Rusk aporta testimonio o tensión según la elección. Cada conversación solo puede completarse una vez.
+- QA del motor: 48 rutas completas sin bloqueos, 216 escenas existentes sin destinos inexistentes, recuperación de partidas anteriores y de los nuevos eventos. Una ruta de juego especial completa en Quinto con enigma, diálogos y pacto de Nyra. Los 12 desenlaces siguieron alcanzables en 212 simulaciones.
+- Pruebas pendientes: ejecutar visualmente en Android, iOS y escritorio, con foco en distribución táctil de las nuevas tarjetas y guardado al cerrar el navegador. No equiparar pruebas del motor con navegador real.
+- Arquitectura sin cambios: código solo en rama `desarrollo-v1-3-lanzamiento`; beta `main` intacta, sin despliegue público de V1.3.
