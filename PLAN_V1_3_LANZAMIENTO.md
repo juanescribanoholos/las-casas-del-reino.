@@ -45,3 +45,15 @@ Convertir la aventura narrativa en un RPG narrativo realmente explorable sin ree
 - Los 12 finales conservados y auditados con rutas simuladas.
 - Confirmados términos de venta y tratamiento fiscal para un producto digital en España, precio final mostrado antes de pago.
 - Mantener ruta pública actual sin cambio hasta lanzamiento expresamente aprobado.
+
+## Registro de avances del 15 de octubre de 2026
+
+- Rama `desarrollo-v1-3-lanzamiento`, separada de `main` (beta pública V1.2). No fusionar hasta pruebas finales.
+- Cargador más eficiente: 4 descargas simultáneas, caché revalidada. Commit `57bc53e`.
+- Prólogo `p0` con contexto del Vigía y las Cinco Casas para partidas NUEVAS; partidas anteriores retoman su escena sin empezar de nuevo. Commits `d862d97`, `a924a3f`.
+- Guía `❖ Cómo jugar` en menú, narración y exploración + consejos en p0/p2/p4/c7/c8 sobre pistas, confianza, alarma y libertad de explorar. Commit `1660867`.
+- Enigma OPCIONAL de Calcáneo: investigar Cripta y Archivo para comparar señales, tomar una decisión y registrar la consecuencia (cambia confianza/alarma y puede descubrir `registros`). Commit `9189bea`.
+- Pruebas de código: 30 recorridos tras añadir guía, todos finalizados; después del enigma, otros 20 recorridos, todos finalizados, 216 escenas sin destino roto; solución con pista y error con alarma simulados y persistidos correctamente. **No confundir con pruebas visuales en navegador móvil.**
+- Página comercial `/las-casas-del-reino` creada en Lovable con CTA DESHABILITADO («Próximamente»), precio previsto 2 € y nombres canónicos de las Cinco Casas. Todavía sin activación de venta ni prueba de entrega.
+- Pendiente: entrega privada del artefacto V1.3 (el GitHub fuente sigue siendo PÚBLICO), compra test realista + validación de sesión/comprador, reabrir el juego en móvil, migración exportar/importar beta -> web comercial, fiscalidad/condiciones de venta.
+- Bloqueo temporal: workspace Lovable sin créditos para más ediciones. Stripe Holos comprobado en modo real, catálogo legible, sin producto `Las Casas del Reino` verificado. No habilitar pagos ni publicar hasta superar pruebas y validar operación.
