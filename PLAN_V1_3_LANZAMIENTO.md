@@ -97,3 +97,14 @@ Alcance de esta tanda: **solamente videojuego**, sin cambios de web ni Stripe.
 - Finales: 12/12 variantes alcanzables en 102 recorridos simulados.
 - Se conserva la clave local de guardado de V1.2. La beta en `main` sigue intacta. No desplegar ni fusionar sin permiso explícito.
 - **Pendiente**: verificar visualmente en navegador de móvil y escritorio, con especial atención a interfaz de conversaciones y a guardado/reapertura; comprobar efectos reales de sonido y rendimiento.
+
+## Ampliación de Diafragma y Lord Aliento · 15 de octubre de 2026
+
+Alcance: únicamente videojuego, rama `desarrollo-v1-3-lanzamiento`. Web, Stripe y ventas continúan pendientes del fin de semana.
+
+- `bfea66f`: Maera y Lord Aliento reconocen cooperación con Filo y Nyra. Nuevas opciones condicionadas en d3 (legado entre Casas), d7 (informe de turnos de galería) y d9 (respuesta medida ante crisis), con repercusión en `bridge_m` hacia Mandíbula.
+- `97ba82a`: enigma opcional Diafragma tras investigar el Farol Primero y la Galería de las costillas. Escoger comparación y alternativas con cautela aporta pista, confianza y decisión especial; precipitarse tiene consecuencia de alarma sin bloquear la historia. Conversaciones opcionales con Maera y Lord Aliento, salvadas en `exploreV12.diafragma.dialogues` y Diario.
+- `cc86f3d`: minijuego táctico **Las Dos Luces**: dos decisiones distintas entre proteger evacuación, relevar la guardia o iluminar rutas secundarias. Las decisiones se conservan incluso a mitad del reto en `exploreV12.diafragma.luces`. Proteger salida y relevar provoca `v13FarolPlanEstable`; otros planes `v13FarolPlanCostoso`, sin bloquear la trama. No se trata de terapia respiratoria ni de una simulación clínica.
+- `13f28d1`: un plan equilibrado de Las Dos Luces, unido al enigma, permite intervenir en la crisis del Farol Primero aunque no se completase la conversación opcional con Maera. Aliento recuerda una planificación costosa.
+- QA: 50 recorridos del motor tras enigma y conversaciones, luego 48 tras Las Dos Luces, **todos hasta el final**, sin destinos inexistentes; recuperación de partida antigua y de progreso intermedio del minijuego, bloqueos correctos y consecuencias persistentes; 12/12 finales accesibles mediante 142 rutas simuladas.
+- **Pendiente**: prueba visual y táctil en Android/iPhone/escritorio; probar sonido, carga, manejo de tarjetas y reapertura real del navegador. No fusionar a `main` ni publicar la V1.3 sin validación y permiso.
