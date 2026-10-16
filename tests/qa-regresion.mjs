@@ -77,7 +77,7 @@ state.scene='d10';state.visited.push('bridge_d');const earlyMandibula=v12Unlocke
 state.scene='bridge_m';const arrivedMandibula=v12Unlocked('mandibula');
 state=fresh('Old');state.scene='c9';state.exploreV12.hallux={rooms:{plataforma:{option:0,reply:'ok'}}};const oldProgress=v12Unlocked('hallux');
 const main=run(0,true),endings=new Set(),reached=new Set(main.visited);let complete=0;const failures=[];
-for(let i=0;i<250;i++){
+for(let i=0;i<750;i++){
  const runResult=run(i,false);if(runResult.finished)complete++;if(runResult.code)endings.add(runResult.code);
  for(const id of runResult.visited)reached.add(id);
  if(runResult.errors.length)failures.push({i,errors:runResult.errors});
@@ -226,7 +226,7 @@ assert.equal(q.count,256);
 assert.equal(q.missing.length,0);
 assert.equal(q.main.finished,true);
 assert.equal(q.main.errors.length,0);
-assert.equal(q.complete,250);
+assert.equal(q.complete,750);
 assert.equal(q.failures.length,0);
 assert.equal(q.endings.length,12);
 assert.equal(q.reached,256);
@@ -251,5 +251,5 @@ assert.ok(Object.values(q.v18Checks).every(r=>Object.values(r).every(Boolean)));
 assert.ok(q.rectified&&q.pursuit,'Rectificación o persecución conserva flags incompatibles');
 assert.ok(Object.values(q.vigiliaChecks).every(r=>Object.values(r).every(Boolean)),'Las seis rutas de la Vigilia deben llegar a la Reconquista y conservar memoria');
 for(const result of Object.values(q.doomRoutes))assert.ok(result.guarded&&result.singleSafe&&result.armed&&result.lost&&result.persisted&&result.retried&&result.cp);
-console.log('PASS: 256 escenas, 250 rutas completas, 12 finales originales, 3 gameovers, 5 heridas, 4 juramentos, 8 bifurcaciones y seis rutas de la Vigilia.');
+console.log('PASS: 256 escenas, 750 rutas completas, 12 finales originales, 3 gameovers, 5 heridas, 4 juramentos, 8 bifurcaciones y seis rutas de la Vigilia.');
 console.log('Partida guiada: '+q.main.steps+' escenas. Pendientes: UI, audio y pruebas reales Android/iOS.');
