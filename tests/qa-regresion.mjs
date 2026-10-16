@@ -190,24 +190,46 @@ const rectified=!state.flags.reconVictoriaAbsoluta&&!!state.flags.v18VictoriaRec
 state=fresh('Persigue');state.scene='y25';choose(0);choose(1);
 const pursuit=!state.flags.reconSinTriunfalismo&&!!state.flags.v18PersecucionInutil&&!!saved()?.flags?.v18PersecucionInutil;
 
+
+const vigiliaChecks={};
+for(const [i,region,good,bad] of [
+ [0,'v19_muralla','v19MurallaCompartida','v19MurallaSellada'],
+ [1,'v19_refugio','v19RefugioConRelevos','v19RefugioForzado'],
+ [2,'v19_trono','v19DecretoRevisable','v19DecretoEterno']
+]){
+ for(const [action,flag] of [[0,good],[1,bad]]){
+  state=fresh('Vigía de la Vigilia');state.scene='y21';view='game';
+  choose(0);
+  const interlude=state.scene==='v19_vigilia'&&v19VigiliaStage(state,current()).includes('LA ÚLTIMA VIGILIA');
+  choose(i);const route=state.scene===region;
+  choose(action);
+  const alba=state.scene==='v19_alba'&&state.flags[flag]===true&&saved()?.flags?.[flag]===true
+   &&scenes.v19_alba.text(state).length>240;
+  const memory=v19EndingMarkup(state).includes('LA NOCHE DE LOS CINCO FUEGOS');
+  choose(0);
+  const ended=state.scene==='y22'&&state.flags.v19AlbaNombres===true&&saved()?.flags?.v19AlbaNombres;
+  vigiliaChecks[region+'_'+action]={interlude,route,alba,memory,ended};
+ }
+}
+
 const migrations={};for(let v=2;v<=8;v++){
  const old=fresh('Legacy');old.version=v;old.scene='ending';localStorage.setItem(SAVE_KEY,JSON.stringify(old));
  const back=saved();migrations[v]=back?.version===9&&back.scene!=='ending';
 }
 globalThis.__qa={count:scenesList.length,missing,main,complete,endings:[...endings],reached:reached.size,failures,
- earlyHallux,earlyMandibula,arrivedMandibula,oldProgress,migrations,doomRoutes,doomGalleryCount,v16Checks,finiteSupply,bonusSupply,ledgerVisible,v17Routes,v17Oaths,v17Memoria,v18Checks,rectified,pursuit};
+ earlyHallux,earlyMandibula,arrivedMandibula,oldProgress,migrations,doomRoutes,doomGalleryCount,v16Checks,finiteSupply,bonusSupply,ledgerVisible,v17Routes,v17Oaths,v17Memoria,v18Checks,rectified,pursuit,vigiliaChecks};
 `;
 const context={localStorage:storage,window:{scrollTo:()=>{}},document:{},console};
 runInNewContext(code+test+'\n})();',context,{timeout:45000});
 const q=context.__qa;
-assert.equal(q.count,251);
+assert.equal(q.count,256);
 assert.equal(q.missing.length,0);
 assert.equal(q.main.finished,true);
 assert.equal(q.main.errors.length,0);
 assert.equal(q.complete,250);
 assert.equal(q.failures.length,0);
 assert.equal(q.endings.length,12);
-assert.equal(q.reached,251);
+assert.equal(q.reached,256);
 assert.equal(q.earlyHallux,false);
 assert.equal(q.earlyMandibula,false);
 assert.equal(q.arrivedMandibula,true);
@@ -227,6 +249,7 @@ assert.ok(Object.values(q.v17Oaths).every(Boolean));
 assert.equal(q.v17Memoria,true);
 assert.ok(Object.values(q.v18Checks).every(r=>Object.values(r).every(Boolean)));
 assert.ok(q.rectified&&q.pursuit,'Rectificación o persecución conserva flags incompatibles');
+assert.ok(Object.values(q.vigiliaChecks).every(r=>Object.values(r).every(Boolean)),'Las seis rutas de la Vigilia deben llegar a la Reconquista y conservar memoria');
 for(const result of Object.values(q.doomRoutes))assert.ok(result.guarded&&result.singleSafe&&result.armed&&result.lost&&result.persisted&&result.retried&&result.cp);
-console.log('PASS: 251 escenas, 250 rutas completas, 12 finales originales, 3 gameovers, 5 heridas, 4 juramentos y 8 bifurcaciones persistentes.');
+console.log('PASS: 256 escenas, 250 rutas completas, 12 finales originales, 3 gameovers, 5 heridas, 4 juramentos, 8 bifurcaciones y seis rutas de la Vigilia.');
 console.log('Partida guiada: '+q.main.steps+' escenas. Pendientes: UI, audio y pruebas reales Android/iOS.');
