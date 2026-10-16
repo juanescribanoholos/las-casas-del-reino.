@@ -108,3 +108,12 @@ Alcance: únicamente videojuego, rama `desarrollo-v1-3-lanzamiento`. Web, Stripe
 - `13f28d1`: un plan equilibrado de Las Dos Luces, unido al enigma, permite intervenir en la crisis del Farol Primero aunque no se completase la conversación opcional con Maera. Aliento recuerda una planificación costosa.
 - QA: 50 recorridos del motor tras enigma y conversaciones, luego 48 tras Las Dos Luces, **todos hasta el final**, sin destinos inexistentes; recuperación de partida antigua y de progreso intermedio del minijuego, bloqueos correctos y consecuencias persistentes; 12/12 finales accesibles mediante 142 rutas simuladas.
 - **Pendiente**: prueba visual y táctil en Android/iPhone/escritorio; probar sonido, carga, manejo de tarjetas y reapertura real del navegador. No fusionar a `main` ni publicar la V1.3 sin validación y permiso.
+
+## Ampliación de Mandíbula y Kael · 16 de octubre de 2026
+
+Alcance: exclusivamente jugabilidad de la rama `desarrollo-v1-3-lanzamiento`. No tocar `main`, web, Stripe ni ventas.
+
+- `98c66d3` — Kael reacciona en m3 a un plan equilibrado o costoso de «Las Dos Luces». Si el Vigía completó el plan equilibrado, se ofrece una nueva respuesta condicional con pista `cierreSelectivo` y marca `v13KaelDosLuces`.
+- La decisión reaparece en m8, durante la escena de la máscara hendida. El diálogo reconoce relevos y defensas medidos; las rutas alternativas permanecen disponibles.
+- Verificación puntual: cambio de archivo y commit leídos de GitHub, diez escenas de Mandíbula siguen presentes y `main` conserva su commit anterior. **No se ha ejecutado una simulación integral ni una prueba visual de navegador de esta nueva tanda**.
+- Próximos hitos: enigma opcional sobre la función del cierre, conversaciones de Lysa y Kael, regresión completa de las 216 escenas y 12 finales y prueba real de interfaz.
