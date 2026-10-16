@@ -134,24 +134,54 @@ for(const id of Object.keys(V16_SCARS))state.flags[V16_SCARS[id].flags[0]]=true;
 v16Reconcile(state);
 const bonusSupply={total:v16CrewTotal(state),repaired:v16Status(state).restored.length,stillOpen:v16Pending(state).length};
 const ledgerVisible=v16LedgerMarkup(state).includes('El precio de sobrevivir');
+
+const v17Routes={};const v17Flags=[
+ ['y27a','v17ArchivoAbierto','v17ArchivoSellado'],
+ ['y27b','v17VecinosDeciden','v17HonoresAntesDeAyuda'],
+ ['y27c','v17CoronaRenunciada','v17CoronaImpuesta']
+];
+for(let i=0;i<v17Flags.length;i++){
+ const [chapter,positive,negative]=v17Flags[i];
+ state=fresh('Vigía de Prueba');state.scene='y26';
+ state.flags.v16RuskNegado=true;
+ const beforeHistory=state.history.length;
+ choose(i);const entered=state.scene===chapter&&state.history.length===beforeHistory+1;
+ choose(0);const good=state.scene==='y28'&&state.flags[positive]&&v17LegacyMarkup(state).length>200;
+ const copied=saved(),savedRoute=copied?.flags?.[positive]===true&&copied.scene==='y28';
+ choose(0);
+ const signed=state.scene==='bridge_e'&&state.flags.v17JuramentoResponsabilidad&&saved()?.flags?.v17JuramentoResponsabilidad;
+ const promised=v17LegacyMarkup(state).includes('Volveré cuando fallen mis decisiones');
+ state=fresh('Vigía de Prueba');state.scene=chapter;
+ choose(2);
+ const bad=state.scene==='y28'&&state.flags[negative]&&v17LegacyMarkup(state).length>200;
+ v17Routes[chapter]={entered,good,savedRoute,signed,promised,bad};
+}
+const v17Oaths={};for(const [i,flag] of [['0','v17JuramentoResponsabilidad'],['1','v17JuramentoAprendices'],['2','v17JuramentoMemoria'],['3','v17JuramentoVanidad']]){
+ state=fresh('Nombre Guardado');state.scene='y28';choose(Number(i));
+ v17Oaths[flag]=!!state.flags[flag]&&saved()?.flags?.[flag]===true&&v17OathName(state).length>10
+   &&v17LegacyMarkup(state).includes('EL JURAMENTO DE NOMBRE GUARDADO');
+}
+const v17Memoria=!!CODEX.memoriaVigia&&scenes.y27a.choices.every(c=>c.next==='y28')
+ &&scenes.y27b.choices.every(c=>c.next==='y28')&&scenes.y27c.choices.every(c=>c.next==='y28')
+ &&scenes.y28.choices.every(c=>c.next==='bridge_e');
 const migrations={};for(let v=2;v<=8;v++){
  const old=fresh('Legacy');old.version=v;old.scene='ending';localStorage.setItem(SAVE_KEY,JSON.stringify(old));
  const back=saved();migrations[v]=back?.version===9&&back.scene!=='ending';
 }
 globalThis.__qa={count:scenesList.length,missing,main,complete,endings:[...endings],reached:reached.size,failures,
- earlyHallux,earlyMandibula,arrivedMandibula,oldProgress,migrations,doomRoutes,doomGalleryCount,v16Checks,finiteSupply,bonusSupply,ledgerVisible};
+ earlyHallux,earlyMandibula,arrivedMandibula,oldProgress,migrations,doomRoutes,doomGalleryCount,v16Checks,finiteSupply,bonusSupply,ledgerVisible,v17Routes,v17Oaths,v17Memoria};
 `;
 const context={localStorage:storage,window:{scrollTo:()=>{}},document:{},console};
 runInNewContext(code+test+'\n})();',context,{timeout:45000});
 const q=context.__qa;
-assert.equal(q.count,239);
+assert.equal(q.count,243);
 assert.equal(q.missing.length,0);
 assert.equal(q.main.finished,true);
 assert.equal(q.main.errors.length,0);
 assert.equal(q.complete,250);
 assert.equal(q.failures.length,0);
 assert.equal(q.endings.length,12);
-assert.equal(q.reached,239);
+assert.equal(q.reached,243);
 assert.equal(q.earlyHallux,false);
 assert.equal(q.earlyMandibula,false);
 assert.equal(q.arrivedMandibula,true);
@@ -166,6 +196,9 @@ for(const c of Object.values(q.v16Checks))assert.ok(c.noWound&&c.wound&&c.repair
 assert.deepEqual(JSON.parse(JSON.stringify(q.finiteSupply)),{initial:3,used:3,remaining:0,unresolved:2});
 assert.deepEqual(JSON.parse(JSON.stringify(q.bonusSupply)),{total:4,repaired:4,stillOpen:1});
 assert.equal(q.ledgerVisible,true);
+assert.ok(Object.values(q.v17Routes).every(r=>Object.values(r).every(Boolean)));
+assert.ok(Object.values(q.v17Oaths).every(Boolean));
+assert.equal(q.v17Memoria,true);
 for(const result of Object.values(q.doomRoutes))assert.ok(result.guarded&&result.singleSafe&&result.armed&&result.lost&&result.persisted&&result.retried&&result.cp);
-console.log('PASS: 239 escenas, 250 rutas completas, 12 finales originales, 3 gameovers y 5 heridas con reparación limitada.');
+console.log('PASS: 243 escenas, 250 rutas completas, 12 finales originales, 3 gameovers, 5 heridas y 4 juramentos persistentes.');
 console.log('Partida guiada: '+q.main.steps+' escenas. Pendientes: UI, audio y pruebas reales Android/iOS.');
