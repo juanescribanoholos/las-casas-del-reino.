@@ -1,0 +1,33 @@
+name: Comprobar beta pública GitHub Pages
+on:
+  push:
+    branches: [desarrollo-v1-3-lanzamiento]
+    paths: ['.github/workflows/comprobar-pages-publicado.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verificar-publicacion:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Comprobar la beta y la V1.2 mediante HTTPS
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://juanescribanoholos.github.io/las-casas-del-reino."
+          for path in / /beta-v1-3/ /beta-v1-3/parts/003.txt /beta-v1-3/parts/015.txt; do
+            file="/tmp/reino$(echo "$path" | tr '/' '_')"
+            code="$(curl --max-time 40 -sSL --retry 3 --retry-delay 2 -w '%{http_code}' -o "$file" "$base$path")"
+            bytes="$(wc -c < "$file")"
+            mime="$(file --mime-type -b "$file")"
+            echo "REINO_HTTP path=$path code=$code bytes=$bytes mime=$mime"
+            test "$code" = 200
+            test "$bytes" -gt 1000
+            if [ "$path" = /beta-v1-3/parts/003.txt ]; then
+              grep -q "const SAVE_KEY='casas_reino_v13_beta_github'" "$file"
+              grep -q "const TOTAL_SCENES=251" "$file"
+            fi
+            if [ "$path" = /beta-v1-3/parts/015.txt ]; then test "$bytes" -gt 300000; fi
+          done
+          echo "PASS: V1.2 pública intacta y beta V1.3 con 251 escenas accesible en Pages."
