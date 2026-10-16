@@ -130,3 +130,11 @@ Referencia operativa: `IMPLEMENTACION_V1_3_2026-10-16.md`. Se añadieron 14 esce
 **QA automatizada final:** partida guiada de 212 escenas hasta el epílogo, 250/250 rutas completas, 230/230 escenas visitadas, 12/12 finales alcanzables; minijuego de dos fases y compatibilidad con partidas anteriores verificados por simulación del motor. Pruebas de interfaz simulada completadas para 230 escenas y seis regiones; no constituyen pruebas visuales reales en móvil. Script: `tests/qa-regresion.mjs`.
 
 **BLOQUEOS DE LANZAMIENTO:** falta prueba real táctil/audio/guardados en Android e iOS; migración JSON beta -> dominio comercial; entrega segura de la edición privada, verificación Stripe y aspectos fiscales. Mantener `main` pública V1.2 sin cambios ni fusión hasta autorización expresa. La siguiente expansión creativa de la Hermandad parte de estos cambios.
+
+## Finales oscuros jugables · 16 de octubre de 2026
+
+**Implementación completada en rama V1.3:** tres puertas de colapso narrativo (después de Mandíbula, Traición y Despertar del Dragón), acumulación de malas decisiones + alarma elevada, aviso de peligro y última opción explícita con desenlace `gameover`. Vías de rescate siempre disponibles. Tres epílogos alternativos de Reino destruido, separados de los 12 finales originales.
+
+**Guardado seguro:** `doomCheckpoint` con estado anterior, retroceso desde pantalla de derrota, reanudación de partida perdida e importación/exportación JSON. Galería de derrotas separada. Pruebas automatizadas en `tests/qa-regresion.mjs`: 233 escenas, 250 rutas canónicas completas, 12 finales originales, 3 derrotas, umbrales, guardados y vuelta a la decisión. Más detalles y límites en `FINALES_OSCUROS_V1_3.md`.
+
+**No publicado:** main conserva la beta de los testers; pruebas visuales reales y venta protegida siguen pendientes.
