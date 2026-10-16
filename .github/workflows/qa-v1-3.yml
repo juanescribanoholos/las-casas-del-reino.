@@ -15,7 +15,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Regresión del motor (251 escenas, finales, guardados)
+      - name: Regresión del motor (256 escenas, finales, guardados)
         run: node tests/qa-regresion.mjs
       - name: Verificar los 16 fragmentos del cargador
         shell: bash
