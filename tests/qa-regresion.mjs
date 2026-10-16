@@ -14,7 +14,7 @@ const test=String.raw`
 render=function(){};
 const scenesList=Object.keys(scenes),missing=[];
 for(const [id,scene] of Object.entries(scenes)){
- for(const choice of scene.choices)if(choice.next!=='ending'&&!scenes[choice.next])missing.push(id+'>'+choice.next);
+ for(const choice of scene.choices)if(choice.next!=='ending'&&choice.next!=='gameover'&&!scenes[choice.next])missing.push(id+'>'+choice.next);
  scene.text(fresh('Prueba'));
 }
 const rng=v=>{let n=v>>>0;return ()=>((n=(n*1664525+1013904223)>>>0)/4294967296)};
@@ -50,7 +50,7 @@ function run(n,guided){
       const q=v12Quest(land);for(const who of names)if(!q.dialogues?.[who]&&allowed(who,q))action(who,0);
     }
   }catch(e){errors.push('Talk '+state.scene+': '+String(e))}
-  const choices=sc.choices.map((c,i)=>({c,i})).filter(x=>!x.c.required||x.c.required(state));
+  const choices=sc.choices.map((c,i)=>({c,i})).filter(x=>(!x.c.required||x.c.required(state))&&x.c.next!=='gameover');
   if(!choices.length){errors.push('No choice '+state.scene);break}
   let selected=choices[Math.floor(rand()*choices.length)].i;
   if(guided){
@@ -82,24 +82,44 @@ for(let i=0;i<250;i++){
  for(const id of runResult.visited)reached.add(id);
  if(runResult.errors.length)failures.push({i,errors:runResult.errors});
 }
+const doomRoutes={};
+for(const [kind,scene] of [['red','v15_crisis_roja'],['pact','v15_crisis_pacto'],['dragon','v15_crisis_dragon']]){
+ state=fresh('Vigía de Prueba');state.scene=scene;state.alarm=3;
+ state.flags[V15_RISKS[kind][0]]=true;
+ const guarded=!v15Critical(state,kind);
+ const previous=state.scene,prevHist=state.history.length;
+ choose(2);
+ const singleSafe=state.scene===previous&&state.history.length===prevHist;
+ state.flags[V15_RISKS[kind][1]]=true;
+ const armed=v15Critical(state,kind);choose(2);
+ const lost=state.scene==='gameover'&&state.finished===true&&view==='doom'&&state.doomKind===kind;
+ const savedDoom=saved(),persisted=savedDoom?.scene==='gameover'&&savedDoom?.doomKind===kind;
+ const cp=savedDoom?.doomCheckpoint?.scene;
+ v15RegisterDoom(kind);
+ v15DoomRetry();
+ const retried=state.scene===scene&&!state.finished&&view==='game'&&!state.doomKind
+  &&state.history.length===prevHist&&saved()?.scene===scene;
+ doomRoutes[kind]={guarded,singleSafe,armed,lost,persisted,cp,retried};
+}
+const doomGalleryCount=Object.keys(v15DoomGallery()).filter(k=>V15_DOOM_OUTCOMES[k]).length;
 const migrations={};for(let v=2;v<=8;v++){
  const old=fresh('Legacy');old.version=v;old.scene='ending';localStorage.setItem(SAVE_KEY,JSON.stringify(old));
  const back=saved();migrations[v]=back?.version===9&&back.scene!=='ending';
 }
 globalThis.__qa={count:scenesList.length,missing,main,complete,endings:[...endings],reached:reached.size,failures,
- earlyHallux,earlyMandibula,arrivedMandibula,oldProgress,migrations};
+ earlyHallux,earlyMandibula,arrivedMandibula,oldProgress,migrations,doomRoutes,doomGalleryCount};
 `;
 const context={localStorage:storage,window:{scrollTo:()=>{}},document:{},console};
 runInNewContext(code+test+'\n})();',context,{timeout:45000});
 const q=context.__qa;
-assert.equal(q.count,230);
+assert.equal(q.count,233);
 assert.equal(q.missing.length,0);
 assert.equal(q.main.finished,true);
 assert.equal(q.main.errors.length,0);
 assert.equal(q.complete,250);
 assert.equal(q.failures.length,0);
 assert.equal(q.endings.length,12);
-assert.equal(q.reached,230);
+assert.equal(q.reached,233);
 assert.equal(q.earlyHallux,false);
 assert.equal(q.earlyMandibula,false);
 assert.equal(q.arrivedMandibula,true);
@@ -109,5 +129,7 @@ for(const r of Object.values(q.main.quests)){
  assert.equal(r.rooms,3);assert.equal(r.enigma,true);assert.equal(r.dialogs,2);assert.equal(r.complete,true);
 }
 assert.equal(q.main.quests.quinto.triangulation,'contrastado');
-console.log('PASS: 230 escenas, 250 rutas completas, 12 finales, 5 expediciones, guardados y desbloqueos.');
+assert.equal(q.doomGalleryCount,3);
+for(const result of Object.values(q.doomRoutes))assert.ok(result.guarded&&result.singleSafe&&result.armed&&result.lost&&result.persisted&&result.retried&&result.cp);
+console.log('PASS: 233 escenas, 250 rutas completas, 12 finales originales + 3 gameovers, guardados y reintentos.');
 console.log('Partida guiada: '+q.main.steps+' escenas. Pendientes: UI, audio y pruebas reales Android/iOS.');
