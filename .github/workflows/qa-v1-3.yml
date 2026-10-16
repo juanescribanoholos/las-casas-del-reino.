@@ -45,6 +45,18 @@ jobs:
           python3 -m http.server 4174 --directory staging-pages --bind 127.0.0.1 > /tmp/pages-staging.log 2>&1 &
           for i in $(seq 1 30); do curl -fsS http://127.0.0.1:4174/index.html >/dev/null && break || sleep 1; done
           node tests/qa-pages-staging.mjs
+      - name: Obtener nueva beta GitHub Pages V1.4 sin publicar
+        uses: actions/checkout@v4
+        with:
+          ref: preparar-beta-v1-4-github-pages
+          path: staging-pages-v14
+          persist-credentials: false
+      - name: Comprobar las tres betas en un único origen y la nueva Vigilia
+        shell: bash
+        run: |
+          python3 -m http.server 4175 --directory staging-pages-v14 --bind 127.0.0.1 > /tmp/pages-v14.log 2>&1 &
+          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:4175/beta-v1-4/index.html >/dev/null && break || sleep 1; done
+          node tests/qa-v14-staging.mjs
       - name: Capturas para revisión posterior
         if: always()
         uses: actions/upload-artifact@v4
