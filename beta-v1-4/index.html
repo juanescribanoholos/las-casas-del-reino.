@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#110f1b">
+<title>Las Casas del Reino — Cargando la edición V1.4 en desarrollo</title>
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100dvh;background:#100d15;color:#f4e7cb;font-family:Georgia,serif;display:grid;place-items:center;padding:1.5rem;text-align:center}
+main{max-width:420px}h1{font-size:clamp(2rem,7vw,3rem);line-height:1.15;margin:0 0 1rem}p{opacity:.82;line-height:1.5}
+progress{width:100%;height:8px;accent-color:#bf985d;margin-top:1.2rem}small{display:block;margin-top:.5rem;color:#b7a889}
+</style>
+</head>
+<body>
+<main><h1>Las Casas del Reino</h1><p id="status">Los caminos del Reino se están abriendo…</p><progress id="progress" max="16" value="0"></progress><small id="percent">Preparando la edición V1.4 en desarrollo</small></main>
+<script>
+(async()=>{
+ const total=16,limit=4,chunks=new Array(total);
+ const stat=document.getElementById('status'),bar=document.getElementById('progress'),percent=document.getElementById('percent');
+ let next=0,completed=0;
+ async function worker(){
+   while(next<total){
+     const i=next++;
+     const src='parts/'+String(i).padStart(3,'0')+'.txt';
+     // Revalidate each fragment, but reuse the local browser cache when unchanged.
+     const res=await fetch(src,{cache:'no-cache'});
+     if(!res.ok)throw Error('No se ha podido cargar el fragmento '+(i+1)+' ('+res.status+')');
+     chunks[i]=await res.text();
+     completed++;
+     bar.value=completed;
+     percent.textContent=Math.round(completed/total*100)+' %';
+   }
+ }
+ await Promise.all(Array.from({length:limit},()=>worker()));
+ const page=chunks.join('');
+ if(!/^<!doctype html>/i.test(page)||!page.trimEnd().endsWith('</html>'))throw Error('El contenido de la beta está incompleto');
+ document.open();document.write(page);document.close();
+})().catch(err=>{
+ document.getElementById('status').textContent='El Reino no ha podido abrirse. Recarga la página para intentarlo de nuevo.';
+ document.getElementById('percent').textContent=err.message;
+ console.error(err);
+});
+</script>
+</body>
+</html>
