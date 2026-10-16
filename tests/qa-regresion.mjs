@@ -164,24 +164,44 @@ const v17Oaths={};for(const [i,flag] of [['0','v17JuramentoResponsabilidad'],['1
 const v17Memoria=!!CODEX.memoriaVigia&&scenes.y27a.choices.every(c=>c.next==='y28')
  &&scenes.y27b.choices.every(c=>c.next==='y28')&&scenes.y27c.choices.every(c=>c.next==='y28')
  &&scenes.y28.choices.every(c=>c.next==='bridge_e');
+
+const v18Checks={};
+for(const [start,index,branch,after,flag,action] of [
+ ['f1',0,'v18_f1_rescate','f2','v18AprendicesEvacuados',0],
+ ['f1',1,'v18_f1_estandarte','f2','v18FiloMentira',1],
+ ['t4',0,'v18_t4_archivo','t5','v18ArchivoVoces',0],
+ ['t4',1,'v18_t4_llaves','t5','v18LlavesEntregadas',1],
+ ['w9',0,'v18_w9_senales','w10','v18SenalesCompartidas',0],
+ ['w9',1,'v18_w9_familias','w10','v18CivilesPostergados',1],
+ ['y25',0,'v18_y25_turnos','y26','v18VictoriaConRelevos',0],
+ ['y25',1,'v18_y25_proclama','y26','v18VictoriaInventada',1]
+]){
+ state=fresh('Vigía V18');state.scene=start;
+ choose(index);const entered=state.scene===branch;
+ choose(action);
+ const persisted=!!saved()?.flags?.[flag]&&saved()?.scene===after;
+ const epilogue=v18EndingMarkup(state).includes('CUATRO DECISIONES');
+ v18Checks[branch]={entered,persisted,epilogue,after:state.scene===after};
+}
+
 const migrations={};for(let v=2;v<=8;v++){
  const old=fresh('Legacy');old.version=v;old.scene='ending';localStorage.setItem(SAVE_KEY,JSON.stringify(old));
  const back=saved();migrations[v]=back?.version===9&&back.scene!=='ending';
 }
 globalThis.__qa={count:scenesList.length,missing,main,complete,endings:[...endings],reached:reached.size,failures,
- earlyHallux,earlyMandibula,arrivedMandibula,oldProgress,migrations,doomRoutes,doomGalleryCount,v16Checks,finiteSupply,bonusSupply,ledgerVisible,v17Routes,v17Oaths,v17Memoria};
+ earlyHallux,earlyMandibula,arrivedMandibula,oldProgress,migrations,doomRoutes,doomGalleryCount,v16Checks,finiteSupply,bonusSupply,ledgerVisible,v17Routes,v17Oaths,v17Memoria,v18Checks};
 `;
 const context={localStorage:storage,window:{scrollTo:()=>{}},document:{},console};
 runInNewContext(code+test+'\n})();',context,{timeout:45000});
 const q=context.__qa;
-assert.equal(q.count,243);
+assert.equal(q.count,251);
 assert.equal(q.missing.length,0);
 assert.equal(q.main.finished,true);
 assert.equal(q.main.errors.length,0);
 assert.equal(q.complete,250);
 assert.equal(q.failures.length,0);
 assert.equal(q.endings.length,12);
-assert.equal(q.reached,243);
+assert.equal(q.reached,251);
 assert.equal(q.earlyHallux,false);
 assert.equal(q.earlyMandibula,false);
 assert.equal(q.arrivedMandibula,true);
@@ -199,6 +219,7 @@ assert.equal(q.ledgerVisible,true);
 assert.ok(Object.values(q.v17Routes).every(r=>Object.values(r).every(Boolean)));
 assert.ok(Object.values(q.v17Oaths).every(Boolean));
 assert.equal(q.v17Memoria,true);
+assert.ok(Object.values(q.v18Checks).every(r=>Object.values(r).every(Boolean)));
 for(const result of Object.values(q.doomRoutes))assert.ok(result.guarded&&result.singleSafe&&result.armed&&result.lost&&result.persisted&&result.retried&&result.cp);
-console.log('PASS: 243 escenas, 250 rutas completas, 12 finales originales, 3 gameovers, 5 heridas y 4 juramentos persistentes.');
+console.log('PASS: 251 escenas, 250 rutas completas, 12 finales originales, 3 gameovers, 5 heridas, 4 juramentos y 8 bifurcaciones persistentes.');
 console.log('Partida guiada: '+q.main.steps+' escenas. Pendientes: UI, audio y pruebas reales Android/iOS.');
