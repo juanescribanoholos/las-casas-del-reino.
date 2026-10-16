@@ -139,7 +139,20 @@ const V14_ECHOES=[
 ['v14HermandadPacto','La Hermandad pactó observar, actuar y revisar.'],
 ['v14HermandadEscucha','Los dos maestros escucharon primero a las familias.'],
 ['v14HolosAcuerdo','Holos aceptó un límite para tomar decisiones.'],
-['v14MenosAcuerdo','MenosEsMas aprendió a escuchar sin interrumpir.']];
+['v14MenosAcuerdo','MenosEsMas aprendió a escuchar sin interrumpir.'],
+['v14QTriangulado','La Mesa de Testigos contrastó dos señales sin fingir una causa demostrada.'],
+['v14QTriangulacionCostosa','La Mesa de Testigos dejó una hipótesis sin contrastar y aumentó la alarma.'],
+['v14NyraSoloVersion','El informe de Nyra conservó solo una versión de la grieta.'],
+['v14TarenErrorOculto','El daño del salto de Taren quedó sin documentar.'],
+['v14FarolFragmentado','El Consejo no coordinó sus salidas ni los relevos.'],
+['v14KaelObstinacion','La acusación de Kael permaneció, pese al pasillo cerrado.'],
+['v14KaelSilencio','La Sala Roja evitó registrar el precio de la guardia.'],
+['v14HolosDemora','Una investigación de Holos dejó esperando demasiado a las familias.'],
+['v14MenosDemora','La pausa de MenosEsMas retrasó una defensa necesaria.'],
+['v14HermandadImposicion','El Vigía impuso un vencedor al debate de la Hermandad.'],
+['v14HermandadCompeticion','Los maestros perdieron tiempo convirtiendo su desacuerdo en competición.'],
+['v14HolosCerteza','Holos aguardó una certeza imposible antes de actuar.'],
+['v14MenosBurla','MenosEsMas no recuperó la voz del guardia que había callado.']];
 function v14EchoMarkup(){const list=V14_ECHOES.filter(([k])=>state?.flags?.[k]).slice(-6);return list.length?`<section class="decision-echo"><strong>✥ Huellas que permanecen</strong><ul class="journal-list">${list.map(([,v])=>`<li>${esc(v)}</li>`).join('')}</ul></section>`:'<p class="tiny">Las decisiones importantes aparecerán aquí cuando afecten al Reino.</p>'}
 function v14Resume(){if(!v14Resumed||!state)return '';const last=state.history.slice(-2).map(x=>x.title).join(' · ');return `<aside class="quest-hint"><strong>◈ Bienvenido de nuevo, ${esc(state.name)}</strong><p>Últimas escenas: ${esc(last||'El comienzo')}</p><p>Ahora: ${esc(v14Goal())}</p></aside>`}
 const V14_ANATOMY=[
