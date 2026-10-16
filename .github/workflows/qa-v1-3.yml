@@ -7,19 +7,35 @@ on:
 permissions:
   contents: read
 jobs:
-  motor:
+  motor-y-navegadores:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Regresión de motor, 243 escenas y finales
+      - name: Regresión del motor (243 escenas, finales, guardados)
         run: node tests/qa-regresion.mjs
-      - name: Verificar que hay 16 fragmentos y cargador aislado
+      - name: Verificar los 16 fragmentos del cargador
         shell: bash
         run: |
-          test -f index.html
-          for n in $(seq -w 0 15); do true; done
           node --input-type=module -e "import{existsSync}from'node:fs';for(let i=0;i<16;i++){let p='parts/'+String(i).padStart(3,'0')+'.txt';if(!existsSync(p))throw Error('Falta '+p)}console.log('PASS: 16 fragmentos presentes')"
+      - name: Instalar navegadores de prueba (sin dependencias del juego)
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium webkit
+      - name: Portada, decisiones, guardado y Game Over en navegadores emulados
+        shell: bash
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/casas-qa-server.log 2>&1 &
+          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:4173/index.html >/dev/null && break || sleep 1; done
+          node tests/qa-navegador.mjs
+      - name: Capturas para revisión posterior
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: capturas-qa-v1-3
+          path: test-results/*.png
+          if-no-files-found: ignore
+          retention-days: 3
