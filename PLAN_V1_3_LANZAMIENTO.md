@@ -116,4 +116,9 @@ Alcance: exclusivamente jugabilidad de la rama `desarrollo-v1-3-lanzamiento`. No
 - `98c66d3` — Kael reacciona en m3 a un plan equilibrado o costoso de «Las Dos Luces». Si el Vigía completó el plan equilibrado, se ofrece una nueva respuesta condicional con pista `cierreSelectivo` y marca `v13KaelDosLuces`.
 - La decisión reaparece en m8, durante la escena de la máscara hendida. El diálogo reconoce relevos y defensas medidos; las rutas alternativas permanecen disponibles.
 - Verificación puntual: cambio de archivo y commit leídos de GitHub, diez escenas de Mandíbula siguen presentes y `main` conserva su commit anterior. **No se ha ejecutado una simulación integral ni una prueba visual de navegador de esta nueva tanda**.
-- Próximos hitos: enigma opcional sobre la función del cierre, conversaciones de Lysa y Kael, regresión completa de las 216 escenas y 12 finales y prueba real de interfaz.
+- Pendiente: simulación de recorridos completos y de los 12 finales, verificación de partidas antiguas, prueba visual Android/iPhone/escritorio y guardado real al cerrar/reabrir navegador.
+- `1115359` — enigma opcional de Mandíbula al contrastar Puerta Menor y Dormitorios de hierro: solución medida o decisiones extremas, pistas/alarma, Diario y guardado persistente.
+- `4f8ef97` — diálogos opcionales únicos de Lysa y Kael, guardados en `exploreV12.mandibula.dialogues`; escuchar o presionar tiene efectos diferentes sobre vínculos y alarma.
+- `f2e1071` — esas decisiones tienen eco en m7–m9, con una opción especial de verificación de la orden del Consejero si se resolvió el enigma y se escuchó a Lysa.
+- QA estática del 16/10: sintaxis de la sección narrativa de Mandíbula, mecánicas y fragmento de interfaz comprobada, diez escenas conservadas, persistencia y enlazado de eventos presentes. **No equivale a una ejecución simulada integral ni prueba visual, móvil o de guardado real tras cerrar navegador**.
+
