@@ -1,0 +1,33 @@
+name: Verificar enlace beta aislado V1.3
+on:
+  workflow_dispatch:
+  push:
+    branches: [desarrollo-v1-3-lanzamiento]
+    paths:
+      - .github/workflows/qa-preview-link.yml
+permissions:
+  contents: read
+jobs:
+  url-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Probar CDN de vista previa sin publicar ni tocar Pages
+        shell: bash
+        run: |
+          set -u
+          root='juanescribanoholos/las-casas-del-reino.'
+          branch='desarrollo-v1-3-lanzamiento'
+          for provider in githack jsdelivr; do
+            if [ "$provider" = githack ]; then base="https://raw.githack.com/$root/$branch"; else base="https://cdn.jsdelivr.net/gh/$root@$branch"; fi
+            echo "=== $provider ==="
+            for fragment in index.html parts/003.txt parts/004.txt parts/015.txt; do
+              out="/tmp/preview-$(echo "$provider-$fragment" | tr '/' '-')"
+              status=$(curl -L --connect-timeout 10 --max-time 45 -sS -A 'curl beta QA' -o "$out" -w '%{http_code}' "$base/$fragment") || status='network-error'
+              size=$(wc -c < "$out" 2>/dev/null || echo 0)
+              mime=$(file --mime-type -b "$out" 2>/dev/null || echo unknown)
+              echo "$fragment status=$status size=$size mime-detected=$mime"
+              if [[ "$fragment" = index.html ]]; then head -c 85 "$out" 2>/dev/null | tr '\n' ' '; echo; fi
+            done
+            echo "BETA CANDIDATE: $base/index.html"
+          done
