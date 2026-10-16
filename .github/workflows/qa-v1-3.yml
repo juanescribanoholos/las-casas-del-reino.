@@ -31,6 +31,8 @@ jobs:
           python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/casas-qa-server.log 2>&1 &
           for i in $(seq 1 30); do curl -fsS http://127.0.0.1:4173/index.html >/dev/null && break || sleep 1; done
           node tests/qa-navegador.mjs
+      - name: Partida íntegra en navegador móvil emulado
+        run: node tests/qa-partida-navegador.mjs
       - name: Capturas para revisión posterior
         if: always()
         uses: actions/upload-artifact@v4
