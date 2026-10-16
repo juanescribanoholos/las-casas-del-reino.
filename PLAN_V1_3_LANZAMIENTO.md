@@ -146,3 +146,11 @@ Ver documentación: `RECONQUISTA_CONSECUENCIAS_V1_3.md`. **Implementado:** seis 
 **QA:** 250/250 rutas completas, 239/239 escenas alcanzadas, 12 finales originales y tres Game Overs intactos. Las cinco heridas, los cinco guardados de reparación, la brigada extra, la escasez (3/5 y 4/5) y los reintentos han pasado la batería. Prueba de generación simulada de interfaz sin excepciones; falta validación en móvil real.
 
 **Publicación:** no desplegar ni fusionar `main` hasta validación visual, audio, guardado, distribución privada y cobro.
+
+## Juramento del Vigía · Profundización de la Reconquista
+
+Ver `JURAMENTO_VIGIA_V1_3.md`. Nueva trilogía ramificada al final de la crónica XII: `y27a` (el Archivo de Holos), `y27b` (las familias de MenosEsMas) y `y27c` (la propuesta de coronar a la Hermandad), seguida de `y28` con cuatro juramentos finales. Las decisiones buenas y malas alteran relaciones y aparecen en el Diario y el epílogo. El Códice separa explícitamente adaptación y canon.
+
+**Nueva auditoría:** 243/243 escenas alcanzables, 250/250 partidas completas, 12 finales originales y tres Game Over conservados; tres ramales, cuatro juramentos, persistencia en guardados y HTML de las 243 escenas probados en simulación. `tests/qa-regresion.mjs` actualizado. Sin fusionar ni desplegar a `main`.
+
+**Pendiente:** pruebas visuales/táctiles reales, sonido y restauración entre navegadores; después, venta privada y acceso protegido a la edición comercial.
