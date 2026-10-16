@@ -138,3 +138,11 @@ Referencia operativa: `IMPLEMENTACION_V1_3_2026-10-16.md`. Se añadieron 14 esce
 **Guardado seguro:** `doomCheckpoint` con estado anterior, retroceso desde pantalla de derrota, reanudación de partida perdida e importación/exportación JSON. Galería de derrotas separada. Pruebas automatizadas en `tests/qa-regresion.mjs`: 233 escenas, 250 rutas canónicas completas, 12 finales originales, 3 derrotas, umbrales, guardados y vuelta a la decisión. Más detalles y límites en `FINALES_OSCUROS_V1_3.md`.
 
 **No publicado:** main conserva la beta de los testers; pruebas visuales reales y venta protegida siguen pendientes.
+
+## El precio de sobrevivir · Secuelas de la Reconquista
+
+Ver documentación: `RECONQUISTA_CONSECUENCIAS_V1_3.md`. **Implementado:** seis escenas de secuelas y reconstrucción (239 escenas totales), cinco heridas persistentes derivadas de malas decisiones, tres brigadas de ayuda y una brigada de bonificación por alianzas previas, decisiones con coste y vínculos deteriorados si se niega el daño. Holos y MenosEsMas discrepan sobre prioridades sin sustituir al Vigía. Diario, exportación y epílogo muestran daños pendientes y atendidos; Rey, Consejero, paladines y Hermandad responden durante la Reconquista. Opción adicional de enviar ayuda a las Casas heridas en `y22`.
+
+**QA:** 250/250 rutas completas, 239/239 escenas alcanzadas, 12 finales originales y tres Game Overs intactos. Las cinco heridas, los cinco guardados de reparación, la brigada extra, la escasez (3/5 y 4/5) y los reintentos han pasado la batería. Prueba de generación simulada de interfaz sin excepciones; falta validación en móvil real.
+
+**Publicación:** no desplegar ni fusionar `main` hasta validación visual, audio, guardado, distribución privada y cobro.
