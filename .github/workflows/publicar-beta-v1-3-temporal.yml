@@ -1,0 +1,63 @@
+name: Vista temporal V1.3 en Netlify (sin credenciales)
+on:
+  push:
+    branches:
+      - desarrollo-v1-3-lanzamiento
+    paths:
+      - .github/workflows/publicar-beta-v1-3-temporal.yml
+permissions:
+  contents: read
+jobs:
+  crear-beta-temporal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Preparar solamente los archivos jugables de la V1.3
+        shell: bash
+        run: |
+          mkdir -p beta-tmp/parts
+          cp index.html beta-tmp/index.html
+          cp parts/*.txt beta-tmp/parts/
+          printf '/*\n  X-Robots-Tag: noindex, nofollow\n' > beta-tmp/_headers
+          for n in $(seq 0 15); do test -s "beta-tmp/parts/$(printf '%03d' "$n").txt"; done
+          echo "16 fragmentos presentes, main intacto, sin secretos ni cobros."
+      - name: Publicar sitio anónimo temporal en Netlify
+        shell: bash
+        run: |
+          set -eu
+          npx --yes netlify-cli@latest deploy --allow-anonymous --dir=beta-tmp --no-build --json > /tmp/beta_netlify_result.json
+          python3 - <<'PY'
+          import json,re
+          raw=open('/tmp/beta_netlify_result.json',encoding='utf-8').read()
+          try:
+              data=json.loads(raw)
+          except Exception:
+              pos=raw.find('{')
+              if pos<0:raise ValueError('Netlify CLI no devolvió JSON; no se exponen respuestas ni tokens')
+              data=json.loads(raw[pos:])
+          print('CAMPOS:',','.join(sorted(data.keys())))
+          urls=[str(data.get(k,'') or '') for k in ('deploy_url','url','site_url','ssl_url')]
+          urls=[u for u in urls if u.startswith('https://') and 'netlify.app' in u]
+          if not urls:raise ValueError('No se ha recibido URL HTTPS de Netlify')
+          url=urls[0]
+          print('ENLACE_BETA_V13='+url)
+          with open('/tmp/beta_url.txt','w') as f:f.write(url)
+          with open(__import__('os').environ['GITHUB_STEP_SUMMARY'],'a') as f:
+              f.write('## Beta V1.3 temporal\n\n'+url+'\n\nPrueba temporal independiente. Netlify elimina los sitios anónimos no reclamados transcurrida una hora.\n')
+          PY
+      - name: Verificar que la beta sirve portada y fragmentos reales
+        shell: bash
+        run: |
+          set -eu
+          url="$(cat /tmp/beta_url.txt)"
+          curl -fsSL --retry 4 --retry-delay 2 "$url" -o /tmp/beta_index.html
+          grep -q 'Los caminos del Reino' /tmp/beta_index.html
+          curl -fsSL --retry 4 --retry-delay 2 "${url%/}/parts/003.txt" -o /tmp/beta_part3.txt
+          grep -q "const SAVE_KEY=" /tmp/beta_part3.txt
+          curl -fsSL --retry 4 --retry-delay 2 "${url%/}/parts/015.txt" -o /tmp/beta_part15.txt
+          test "$(wc -c < /tmp/beta_part15.txt)" -gt 300000
+          echo "PASS: HTTPS, portada, motor narrativo y último fragmento accesibles."
