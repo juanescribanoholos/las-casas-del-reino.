@@ -105,9 +105,39 @@ for (const config of cases){
     assert.equal(sv.scene,'m10','Reintento no restaura la última decisión');
     assert.equal(sv.finished,false);
     assert.ok(!sv.doomKind);
+
+    // V1.4: prueba visual y funcional del capítulo de La Vigilia.
+    await page.evaluate(()=>{
+      const key='casas_reino_v02_vigia',s=JSON.parse(localStorage.getItem(key));
+      s.scene='v19_vigilia';s.finished=false;
+      localStorage.setItem(key,JSON.stringify(s));
+    });
+    await page.reload({waitUntil:'domcontentloaded'});
+    await page.locator('.hero-home').waitFor({timeout:90000});
+    await page.locator('[data-action="continue"]').click();
+    await page.locator('.narrative').waitFor();
+    await cinema();
+    await page.locator('.vigilia-ribbon').waitFor();
+    assert.equal(await page.locator('.vigilia-fire').count(),5,'Faltan los cinco fuegos');
+    assert.equal(await page.locator('body').getAttribute('data-vigilia'),'true');
+    await widthOK('vigilia');
+    await page.screenshot({path:'test-results/'+config.name+'-vigilia.png',fullPage:true,animations:'disabled'});
+    await page.locator('[data-choice]:not([disabled])').first().click();
+    await cinema();
+    assert.equal(JSON.parse(await page.evaluate(()=>localStorage.getItem('casas_reino_v02_vigia'))).scene,'v19_muralla');
+    await page.locator('[data-choice]:not([disabled])').first().click();
+    await cinema();
+    assert.equal(JSON.parse(await page.evaluate(()=>localStorage.getItem('casas_reino_v02_vigia'))).scene,'v19_alba');
+    assert.match(await page.locator('.story').innerText(),/Rusk/);
+    await widthOK('alba de la Vigilia');
+    await page.locator('[data-choice]:not([disabled])').first().click();
+    await cinema();
+    assert.equal(JSON.parse(await page.evaluate(()=>localStorage.getItem('casas_reino_v02_vigia'))).scene,'y22');
+    assert.match(await page.locator('.story').innerText(),/Rusk/);
+
     await page.screenshot({path:'test-results/'+config.name+'.png',fullPage:true,animations:'disabled'});
     assert.deepEqual(errors,[],'Errores JS no capturados: '+errors.join('; '));
-    console.log('PASS NAVEGADOR '+config.name+': portada, nombre UTF-8, progreso, cierre/reapertura, JSON, Calcáneo, Game Over y reintento. (Emulado)');
+    console.log('PASS NAVEGADOR '+config.name+': portada, nombre UTF-8, progreso, cierre/reapertura, JSON, Calcáneo, Game Over, cinco fuegos, Vigilia y reintento. (Emulado)');
   }catch(err){
     await page.screenshot({path:'test-results/'+config.name+'-FALLO.png',fullPage:true}).catch(()=>{});
     throw new Error(config.name+': '+err.stack+'; JS errors='+errors.join('|'));
