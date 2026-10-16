@@ -102,24 +102,56 @@ for(const [kind,scene] of [['red','v15_crisis_roja'],['pact','v15_crisis_pacto']
  doomRoutes[kind]={guarded,singleSafe,armed,lost,persisted,cp,retried};
 }
 const doomGalleryCount=Object.keys(v15DoomGallery()).filter(k=>V15_DOOM_OUTCOMES[k]).length;
+
+const v16Checks={};
+const v16SceneNames={ordan:'y5c',rusk:'y9c',taren:'y12c',maera:'y15c',lysa:'y18c'};
+for(const [id,sc] of Object.entries(v16SceneNames)){
+ state=fresh('Vigía de Prueba');state.scene=sc;
+ const noWound=!v16HasScar(state,id)&&!scenes[sc].choices[0].required(state);
+ // A negative earlier choice creates a present damage; repairing costs a brigade.
+ state.flags[V16_SCARS[id].flags[0]]=true;
+ const wound=v16ScarOpen(state,id)&&scenes[sc].choices[0].required(state);
+ const before=v16Crews(state);
+ const trust=state.trust;choose(0);
+ const repaired=!v16ScarOpen(state,id),after=v16Crews(state),restored=saved();
+ const durable=!!restored?.flags?.[V16_SCARS[id].repair]&&restored.scene===scenes[sc].choices[0].next;
+ const endingVisible=v16EndingMarkup(state).includes(V16_SCARS[id].person);
+ // A different decision must leave the wound pending.
+ state=fresh('Vigía de Prueba');state.scene=sc;state.flags[V16_SCARS[id].flags[0]]=true;
+ choose(1);const deferred=v16ScarOpen(state,id)&&v16Crews(state)===3;
+ // Denial itself causes consequences, even when there was no previous scar.
+ state=fresh('Vigía de Prueba');state.scene=sc;choose(2);
+ const denied=v16HasScar(state,id)&&v16ScarOpen(state,id)&&state.alarm===1;
+ v16Checks[id]={noWound,wound,repaired,cost:before-after,durable,endingVisible,deferred,denied,trustIncrease:trust<0||repaired};
+}
+state=fresh('Cinco heridas');
+for(const id of Object.keys(V16_SCARS))state.flags[V16_SCARS[id].flags[0]]=true;
+const firstTotal=v16Crews(state),assigned=[];
+for(const id of Object.keys(V16_SCARS))if(v16Repair(state,id))assigned.push(id);
+const finiteSupply={initial:firstTotal,used:assigned.length,remaining:v16Crews(state),unresolved:v16Pending(state).length};
+state=fresh('Cuarta brigada');state.flags.v14HermandadPacto=true;
+for(const id of Object.keys(V16_SCARS))state.flags[V16_SCARS[id].flags[0]]=true;
+v16Reconcile(state);
+const bonusSupply={total:v16CrewTotal(state),repaired:v16Status(state).restored.length,stillOpen:v16Pending(state).length};
+const ledgerVisible=v16LedgerMarkup(state).includes('El precio de sobrevivir');
 const migrations={};for(let v=2;v<=8;v++){
  const old=fresh('Legacy');old.version=v;old.scene='ending';localStorage.setItem(SAVE_KEY,JSON.stringify(old));
  const back=saved();migrations[v]=back?.version===9&&back.scene!=='ending';
 }
 globalThis.__qa={count:scenesList.length,missing,main,complete,endings:[...endings],reached:reached.size,failures,
- earlyHallux,earlyMandibula,arrivedMandibula,oldProgress,migrations,doomRoutes,doomGalleryCount};
+ earlyHallux,earlyMandibula,arrivedMandibula,oldProgress,migrations,doomRoutes,doomGalleryCount,v16Checks,finiteSupply,bonusSupply,ledgerVisible};
 `;
 const context={localStorage:storage,window:{scrollTo:()=>{}},document:{},console};
 runInNewContext(code+test+'\n})();',context,{timeout:45000});
 const q=context.__qa;
-assert.equal(q.count,233);
+assert.equal(q.count,239);
 assert.equal(q.missing.length,0);
 assert.equal(q.main.finished,true);
 assert.equal(q.main.errors.length,0);
 assert.equal(q.complete,250);
 assert.equal(q.failures.length,0);
 assert.equal(q.endings.length,12);
-assert.equal(q.reached,233);
+assert.equal(q.reached,239);
 assert.equal(q.earlyHallux,false);
 assert.equal(q.earlyMandibula,false);
 assert.equal(q.arrivedMandibula,true);
@@ -130,6 +162,10 @@ for(const r of Object.values(q.main.quests)){
 }
 assert.equal(q.main.quests.quinto.triangulation,'contrastado');
 assert.equal(q.doomGalleryCount,3);
+for(const c of Object.values(q.v16Checks))assert.ok(c.noWound&&c.wound&&c.repaired&&c.cost===1&&c.durable&&c.endingVisible&&c.deferred&&c.denied);
+assert.deepEqual(JSON.parse(JSON.stringify(q.finiteSupply)),{initial:3,used:3,remaining:0,unresolved:2});
+assert.deepEqual(JSON.parse(JSON.stringify(q.bonusSupply)),{total:4,repaired:4,stillOpen:1});
+assert.equal(q.ledgerVisible,true);
 for(const result of Object.values(q.doomRoutes))assert.ok(result.guarded&&result.singleSafe&&result.armed&&result.lost&&result.persisted&&result.retried&&result.cp);
-console.log('PASS: 233 escenas, 250 rutas completas, 12 finales originales + 3 gameovers, guardados y reintentos.');
+console.log('PASS: 239 escenas, 250 rutas completas, 12 finales originales, 3 gameovers y 5 heridas con reparación limitada.');
 console.log('Partida guiada: '+q.main.steps+' escenas. Pendientes: UI, audio y pruebas reales Android/iOS.');
