@@ -32,7 +32,7 @@ function run(n,guided){
    try{
     V12_LANDS[land].rooms.forEach((x,i)=>v12Investigate(land,i,0));
     if(land==='calcaneo')v13SolveCalcaneo(1);
-    if(land==='quinto')v13QuintoSolve(1);
+    if(land==='quinto'){v13QuintoSolve(1);v14Triangular(1);const half=v12Quest('quinto').triangulacion;if(half?.fuente!==1||half?.resultado)throw Error('Triangulación fase 1 fallida');v14Triangular(0);if(!v12Quest('quinto').triangulacion?.resultado)throw Error('Triangulación incompleta')}
     if(land==='hallux')v13HalluxSolve(1);
     if(land==='diafragma'){v13DiafragmaSolve(1);v13DosLuces(0);v13DosLuces(1)}
     if(land==='mandibula')v13MandibulaSolve(1);
@@ -68,7 +68,7 @@ function run(n,guided){
   }
  }
  const quests={};if(guided)for(const land of regions){
-  const q=v12Quest(land);quests[land]={rooms:Object.keys(q.rooms).length,enigma:!!q.enigma,dialogs:Object.keys(q.dialogues||{}).length,complete:!!q.complete};
+  const q=v12Quest(land);quests[land]={rooms:Object.keys(q.rooms).length,enigma:!!q.enigma,dialogs:Object.keys(q.dialogues||{}).length,complete:!!q.complete,triangulation:land==='quinto'?q.triangulacion?.resultado:null};
  }
  return {finished:state.scene==='ending',code:state.scene==='ending'?epilogueResult().code:null,steps,visited,errors,quests};
 }
@@ -92,14 +92,14 @@ globalThis.__qa={count:scenesList.length,missing,main,complete,endings:[...endin
 const context={localStorage:storage,window:{scrollTo:()=>{}},document:{},console};
 runInNewContext(code+test+'\n})();',context,{timeout:45000});
 const q=context.__qa;
-assert.equal(q.count,216);
+assert.equal(q.count,230);
 assert.equal(q.missing.length,0);
 assert.equal(q.main.finished,true);
 assert.equal(q.main.errors.length,0);
 assert.equal(q.complete,250);
 assert.equal(q.failures.length,0);
 assert.equal(q.endings.length,12);
-assert.equal(q.reached,216);
+assert.equal(q.reached,230);
 assert.equal(q.earlyHallux,false);
 assert.equal(q.earlyMandibula,false);
 assert.equal(q.arrivedMandibula,true);
@@ -108,5 +108,6 @@ assert.ok(Object.values(q.migrations).every(Boolean));
 for(const r of Object.values(q.main.quests)){
  assert.equal(r.rooms,3);assert.equal(r.enigma,true);assert.equal(r.dialogs,2);assert.equal(r.complete,true);
 }
-console.log('PASS: 216 escenas, 250 rutas completas, 12 finales, 5 expediciones, guardados y desbloqueos.');
+assert.equal(q.main.quests.quinto.triangulation,'contrastado');
+console.log('PASS: 230 escenas, 250 rutas completas, 12 finales, 5 expediciones, guardados y desbloqueos.');
 console.log('Partida guiada: '+q.main.steps+' escenas. Pendientes: UI, audio y pruebas reales Android/iOS.');
