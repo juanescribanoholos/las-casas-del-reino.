@@ -190,7 +190,7 @@ body[data-threat="high"] .illustration .atmosphere{opacity:.75}
 <script>
 (()=>{'use strict';
 const SAVE_KEY='casas_reino_v02_vigia';
-const TOTAL_SCENES=243;
+const TOTAL_SCENES=251;
 const $=id=>document.getElementById(id);const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const cap=(v,a,b)=>Math.max(a,Math.min(b,v));
 const addClue=(s,k)=>{if(!s.clues.includes(k))s.clues.push(k)};
