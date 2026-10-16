@@ -33,8 +33,18 @@ jobs:
           node tests/qa-navegador.mjs
       - name: Partida íntegra en navegador móvil emulado
         run: node tests/qa-partida-navegador.mjs
-      - name: Verificar apertura remota de beta V1.3 en CDN
-        run: node tests/qa-preview-url.mjs
+      - name: Obtener propuesta GitHub Pages sin publicar
+        uses: actions/checkout@v4
+        with:
+          ref: preparar-beta-v1-3-github-pages
+          path: staging-pages
+          persist-credentials: false
+      - name: Verificar V1.2 y V1.3 desde el mismo GitHub Pages
+        shell: bash
+        run: |
+          python3 -m http.server 4174 --directory staging-pages --bind 127.0.0.1 > /tmp/pages-staging.log 2>&1 &
+          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:4174/index.html >/dev/null && break || sleep 1; done
+          node tests/qa-pages-staging.mjs
       - name: Capturas para revisión posterior
         if: always()
         uses: actions/upload-artifact@v4
