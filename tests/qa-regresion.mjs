@@ -184,12 +184,18 @@ for(const [start,index,branch,after,flag,action] of [
  v18Checks[branch]={entered,persisted,epilogue,after:state.scene===after};
 }
 
+
+state=fresh('Rectifica');state.scene='y25';choose(1);choose(0);
+const rectified=!state.flags.reconVictoriaAbsoluta&&!!state.flags.v18VictoriaRectificada&&!!saved()?.flags?.v18VictoriaRectificada;
+state=fresh('Persigue');state.scene='y25';choose(0);choose(1);
+const pursuit=!state.flags.reconSinTriunfalismo&&!!state.flags.v18PersecucionInutil&&!!saved()?.flags?.v18PersecucionInutil;
+
 const migrations={};for(let v=2;v<=8;v++){
  const old=fresh('Legacy');old.version=v;old.scene='ending';localStorage.setItem(SAVE_KEY,JSON.stringify(old));
  const back=saved();migrations[v]=back?.version===9&&back.scene!=='ending';
 }
 globalThis.__qa={count:scenesList.length,missing,main,complete,endings:[...endings],reached:reached.size,failures,
- earlyHallux,earlyMandibula,arrivedMandibula,oldProgress,migrations,doomRoutes,doomGalleryCount,v16Checks,finiteSupply,bonusSupply,ledgerVisible,v17Routes,v17Oaths,v17Memoria,v18Checks};
+ earlyHallux,earlyMandibula,arrivedMandibula,oldProgress,migrations,doomRoutes,doomGalleryCount,v16Checks,finiteSupply,bonusSupply,ledgerVisible,v17Routes,v17Oaths,v17Memoria,v18Checks,rectified,pursuit};
 `;
 const context={localStorage:storage,window:{scrollTo:()=>{}},document:{},console};
 runInNewContext(code+test+'\n})();',context,{timeout:45000});
@@ -220,6 +226,7 @@ assert.ok(Object.values(q.v17Routes).every(r=>Object.values(r).every(Boolean)));
 assert.ok(Object.values(q.v17Oaths).every(Boolean));
 assert.equal(q.v17Memoria,true);
 assert.ok(Object.values(q.v18Checks).every(r=>Object.values(r).every(Boolean)));
+assert.ok(q.rectified&&q.pursuit,'Rectificación o persecución conserva flags incompatibles');
 for(const result of Object.values(q.doomRoutes))assert.ok(result.guarded&&result.singleSafe&&result.armed&&result.lost&&result.persisted&&result.retried&&result.cp);
 console.log('PASS: 251 escenas, 250 rutas completas, 12 finales originales, 3 gameovers, 5 heridas, 4 juramentos y 8 bifurcaciones persistentes.');
 console.log('Partida guiada: '+q.main.steps+' escenas. Pendientes: UI, audio y pruebas reales Android/iOS.');
