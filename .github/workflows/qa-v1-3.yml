@@ -33,6 +33,8 @@ jobs:
           node tests/qa-navegador.mjs
       - name: Partida íntegra en navegador móvil emulado
         run: node tests/qa-partida-navegador.mjs
+      - name: Verificar apertura remota de beta V1.3 en CDN
+        run: node tests/qa-preview-url.mjs
       - name: Capturas para revisión posterior
         if: always()
         uses: actions/upload-artifact@v4
