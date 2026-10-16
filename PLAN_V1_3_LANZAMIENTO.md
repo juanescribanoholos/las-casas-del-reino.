@@ -122,3 +122,11 @@ Alcance: exclusivamente jugabilidad de la rama `desarrollo-v1-3-lanzamiento`. No
 - `f2e1071` — esas decisiones tienen eco en m7–m9, con una opción especial de verificación de la orden del Consejero si se resolvió el enigma y se escuchó a Lysa.
 - QA estática del 16/10: sintaxis de la sección narrativa de Mandíbula, mecánicas y fragmento de interfaz comprobada, diez escenas conservadas, persistencia y enlazado de eventos presentes. **No equivale a una ejecución simulada integral ni prueba visual, móvil o de guardado real tras cerrar navegador**.
 
+
+## Bloque de mejoras de jugabilidad completado · 16 de octubre
+
+Referencia operativa: `IMPLEMENTACION_V1_3_2026-10-16.md`. Se añadieron 14 escenas (ahora **230**), rutas con consecuencias y diálogos más profundos de Holos/MenosEsMas, Mesa de Testigos en Quinto Radio, Diario de huellas (incluyendo errores), objetivos y resumen al reanudar, Lectura enfocada y Códice que diferencia anatomía/ficción. Accesos de prueba ocultos del menú y rótulos de rama actualizados.
+
+**QA automatizada final:** partida guiada de 212 escenas hasta el epílogo, 250/250 rutas completas, 230/230 escenas visitadas, 12/12 finales alcanzables; minijuego de dos fases y compatibilidad con partidas anteriores verificados por simulación del motor. Pruebas de interfaz simulada completadas para 230 escenas y seis regiones; no constituyen pruebas visuales reales en móvil. Script: `tests/qa-regresion.mjs`.
+
+**BLOQUEOS DE LANZAMIENTO:** falta prueba real táctil/audio/guardados en Android e iOS; migración JSON beta -> dominio comercial; entrega segura de la edición privada, verificación Stripe y aspectos fiscales. Mantener `main` pública V1.2 sin cambios ni fusión hasta autorización expresa. La siguiente expansión creativa de la Hermandad parte de estos cambios.
