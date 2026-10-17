@@ -95,7 +95,7 @@ async function run(){
   results.push({name:'Música Dragón Chrome',pass:music.on==='true'&&music.plays.some(x=>x.state==='playing'),details:JSON.stringify(music)});
   await page.locator('[data-action="sound"]').first().click();
   check('Tres rutas disponibles',await page.locator('.choice:not([disabled])').count()===3);
-  await page.locator('[data-panel="journal"]').first().click();
+  await page.locator('.bottom-tabs [data-panel="journal"]').click();
   check('Diario muestra memoria',await page.locator('#modal').innerText().then(t=>t.includes('MEMORIA DEL CAMINO')));
   await page.locator('#modal .close').click();
   check('Diario se cierra',await page.locator('#modal').evaluate(el=>el.classList.contains('hidden')));
@@ -104,6 +104,7 @@ async function run(){
   await page.locator('.hero-home').waitFor();
   await page.locator('[data-action="continue"]').first().click();
   check('Guardado al recargar', (await snapshot(page)).scene==='dr20_umbral' && (await snapshot(page)).name==='Aldren QA');
+  check('Resumen del Vigía plegable al regresar', await page.locator('details.v20-return').count()===1);
 
   const post=await advance(page,220,false);
   check('Final completo alcanzado',post.save?.scene==='ending',JSON.stringify({n:post.total,last:post.save?.scene,error:post.stalled}));
@@ -122,7 +123,34 @@ async function run(){
   const dimensions=await phone.evaluate(()=>({w:window.innerWidth,scrollW:document.documentElement.scrollWidth}));
   check('Móvil: sin desbordamiento horizontal',dimensions.scrollW<=dimensions.w+8,JSON.stringify(dimensions));
   check('Móvil: decisiones alcanzables',await phone.locator('.choice:not([disabled])').count()===3);
+  check('Móvil: herramientas inicialmente plegadas',await phone.locator('.v20-mobile-tools').evaluate(el=>!el.open));
+  check('Móvil: recuerdo anterior plegado',await phone.locator('.v20-return').evaluate(el=>!el.open));
+  check('Móvil: consecuencias anteriores plegadas',await phone.locator('.v20-memory').evaluate(el=>!el.open));
+  const mobileMetrics=await phone.evaluate(()=>({height:document.documentElement.scrollHeight,firstDecision:Math.round(document.querySelector('.choice')?.getBoundingClientRect().top+window.scrollY||0),width:document.documentElement.scrollWidth}));
+  results.push({name:'Móvil: altura de escena mejorada',pass:mobileMetrics.height<3307,details:JSON.stringify(mobileMetrics)});
+  check('Móvil: acceso a herramientas',await phone.locator('.v20-mobile-tools > summary').isVisible());
+  await phone.locator('.v20-mobile-tools > summary').click();
+  check('Móvil: herramientas disponibles al desplegar',await phone.locator('.v20-mobile-tools .bottom-tabs [data-panel="journal"]').isVisible());
+  await phone.locator('.v20-mobile-tools .bottom-tabs [data-panel="journal"]').click();
+  check('Móvil: Diario accesible',await phone.locator('#modal').innerText().then(t=>t.includes('MEMORIA DEL CAMINO')));
+  await phone.locator('#modal .close').click();
+  await phone.locator('.v20-mobile-tools > summary').click();
   await phone.screenshot({path:SAVE_DIR+'/dragon-movil.png',fullPage:true});
+
+  const chapter=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,reducedMotion:'reduce'});
+  const camp=JSON.parse(dragonSave);camp.scene='bridge_y';
+  await chapter.addInitScript(({key,save})=>localStorage.setItem(key,save),{key:KEY,save:JSON.stringify(camp)});
+  const restPage=await chapter.newPage();await boot(restPage);
+  await restPage.locator('[data-action="continue"]').first().click();
+  check('Pausa narrativa en interludios',await restPage.locator('.v20-rest').isVisible());
+  check('Pausa con recuerdos accesibles',await restPage.locator('.v20-rest-recap summary').isVisible());
+  await restPage.locator('.v20-rest-recap summary').click();
+  check('Resumen de últimas decisiones',await restPage.locator('.v20-rest-recap li').count()>0);
+  await restPage.screenshot({path:SAVE_DIR+'/descanso-movil.png',fullPage:true});
+  await restPage.locator('.v20-rest-exit').click();
+  check('Descansar permite volver al menú',await restPage.locator('.hero-home').isVisible());
+  check('Descansar conserva la escena', (await snapshot(restPage))?.scene==='bridge_y');
+  await chapter.close();
 
   const dark=await browser.newContext({viewport:{width:1365,height:850},reducedMotion:'reduce'});
   const seeded=JSON.parse(dragonSave);
@@ -144,7 +172,7 @@ async function run(){
   check('Reintento vuelve al colapso',(await snapshot(bad)).scene==='dr20_colapso');
   const rect=bad.locator('.choice[data-choice="0"]');await rect.click();
   check('Rectificación evita Game Over',(await snapshot(bad)).scene==='dr20_pulso');
-  const report={date:new Date().toISOString(),results,errors,paths:{victory:preChoices+post.total,dragon:post.dragons,nightmare:names},note:'Chrome real en GitHub Actions; viewport móvil emulado, NO Safari/iPhone real'};
+  const report={date:new Date().toISOString(),results,errors,mobileMetrics,paths:{victory:preChoices+post.total,dragon:post.dragons,nightmare:names},note:'Chrome real en GitHub Actions; viewport móvil emulado, NO Safari/iPhone real'};
   fs.writeFileSync(SAVE_DIR+'/report.json',JSON.stringify(report,null,2));
   console.log('DRAGON QA REPORT '+JSON.stringify(report));
   if(errors.length)console.warn('Browser errors '+JSON.stringify(errors.slice(0,12)));
