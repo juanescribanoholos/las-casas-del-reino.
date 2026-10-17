@@ -250,3 +250,6 @@ body[data-dragon="true"] .scene-title{letter-spacing:-.015em}
  body[data-dragon="true"] .dragon20-sigil{width:34px;height:34px}
 }
 @media(prefers-reduced-motion:reduce){.v20-rest,.v20-mobile-tools,.v20-memory{scroll-behavior:auto}}
+
+/* Mobile: mostrar el tramo de la historia y progreso sin recargar con 264 escenas. */
+@media(max-width:640px){.game-grid .scene-top>span:last-child{display:none}}
