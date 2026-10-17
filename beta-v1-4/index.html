@@ -32,7 +32,7 @@ progress{width:100%;height:8px;accent-color:#bf985d;margin-top:1.2rem}small{disp
    }
  }
  await Promise.all(Array.from({length:limit},()=>worker()));
- const page=chunks.join('');
+ const page=chunks.join('').replace('</head>','<link rel="stylesheet" href="identidad-casas.css"></head>');
  if(!/^<!doctype html>/i.test(page)||!page.trimEnd().endsWith('</html>'))throw Error('El contenido de la beta está incompleto');
  document.open();document.write(page);document.close();
 })().catch(err=>{
