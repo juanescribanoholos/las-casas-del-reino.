@@ -118,3 +118,18 @@ body[data-realm] .game-grid{
   body[data-realm] .game-grid{animation:none}
   body[data-realm] .game-grid .choice:not(:disabled){transition:none}
 }
+
+/* Bitácora del Vigía: información legible, sin barras que confundan ficción con diagnóstico. */
+.vigia-return{border-left:3px solid var(--realm-accent);padding:16px 20px}
+.vigia-return p{line-height:1.58}
+.vigia-return button{font-size:.83rem;min-height:40px;margin-top:5px}
+.vigia-memory{margin:20px 0;border:1px solid var(--house-line,rgba(202,164,105,.4));background:linear-gradient(155deg,var(--house-deep,#17120f),#151210);padding:18px 20px;border-radius:10px}
+.vigia-memory h3{font:normal 1.4rem/1.3 Georgia,serif;color:#f0d7ab;margin:7px 0 12px}
+.vigia-memory-pulse{color:#e5d4ba;line-height:1.65;border-left:2px solid var(--realm-accent,#caa469);padding-left:12px}
+.vigia-memory-list{list-style:none;padding:0;margin:16px 0;display:grid;gap:9px;counter-reset:vigia-trail}
+.vigia-memory-list li{counter-increment:vigia-trail;display:grid;gap:5px;border-top:1px solid rgba(202,164,105,.2);padding:10px 0 3px 32px;position:relative;line-height:1.55}
+.vigia-memory-list li::before{content:counter(vigia-trail,decimal-leading-zero);position:absolute;top:11px;left:0;font:700 .77rem/1.4 system-ui,sans-serif;color:var(--realm-accent,#caa469)}
+.vigia-memory-list strong{color:#f0dfc3;font-size:.95rem}
+.vigia-memory-list span{color:#c7b9a5;font-size:.9rem;overflow-wrap:anywhere}
+@media(max-width:600px){.vigia-return,.vigia-memory{padding:13px}.vigia-memory h3{font-size:1.19rem}.vigia-memory-list li{padding-left:29px}}
+@media(prefers-reduced-motion:reduce){.vigia-memory *{scroll-behavior:auto}}
