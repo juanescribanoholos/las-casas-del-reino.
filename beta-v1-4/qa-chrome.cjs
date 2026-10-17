@@ -35,6 +35,9 @@ async function advance(page,max,stopAtDragon=false){
   const batch=await page.evaluate(({count,key,stop})=>{
     const seen=[],bad=[];
     for(let i=0;i<count;i++){
+      // Una introducción cinematográfica se cierra antes de la siguiente decisión.
+      const cinema=document.getElementById('v12-cinema');
+      if(cinema){cinema.querySelector('#cinema-dismiss')?.click();}
       const save=JSON.parse(localStorage.getItem(key)||'null');
       if(!save){bad.push('No save');break}
       if(save.scene==='ending'||save.scene==='gameover')break;
@@ -69,6 +72,7 @@ async function run(){
   const pre=await advance(page,320,true);
   check('Ruta completa hasta Dragón',pre.save?.scene==='dr20_umbral',JSON.stringify({n:pre.total,last:pre.save?.scene,error:pre.stalled}));
   check('Sin bloqueos previos',!pre.stalled,String(pre.stalled));
+  await page.evaluate(()=>document.querySelector('#cinema-dismiss')?.click());
   const preChoices=pre.total;
   const dragonSave=JSON.stringify(pre.save);
   check('Dragon cargado en interfaz',await page.locator('.scene-title').innerText()==='CUANDO EL CIELO SE PARTIÓ');
