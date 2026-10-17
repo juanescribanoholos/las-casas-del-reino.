@@ -120,6 +120,8 @@ async function run(){
   await boot(phone);
   await phone.locator('[data-action="continue"]').first().click();
   check('Móvil: escena de Dragón visible',await phone.locator('.dragon20-boss').isVisible());
+  check('Móvil: contador técnico no distrae',!(await phone.locator('.scene-top > span:last-child').isVisible()));
+  check('Dragón: no aparece un botón de exploración invasivo',await phone.locator('.enter-stronghold').count()===0);
   const dimensions=await phone.evaluate(()=>({w:window.innerWidth,scrollW:document.documentElement.scrollWidth}));
   check('Móvil: sin desbordamiento horizontal',dimensions.scrollW<=dimensions.w+8,JSON.stringify(dimensions));
   check('Móvil: decisiones alcanzables',await phone.locator('.choice:not([disabled])').count()===3);
@@ -151,6 +153,23 @@ async function run(){
   check('Descansar permite volver al menú',await restPage.locator('.hero-home').isVisible());
   check('Descansar conserva la escena', (await snapshot(restPage))?.scene==='bridge_y');
   await chapter.close();
+
+  // Ruta jugable alternativa, no solo una simulación de flags.
+  const rescueContext=await browser.newContext({viewport:{width:1365,height:850},reducedMotion:'reduce'});
+  await rescueContext.addInitScript(({key,save})=>localStorage.setItem(key,save),{key:KEY,save:dragonSave});
+  const rescuer=await rescueContext.newPage();
+  await boot(rescuer);
+  await rescuer.locator('[data-action="continue"]').first().click();
+  const rescueChoices=[1,0,2,1,0];
+  const rescueStops=['dr20_rescate','dr20_cielo','dr20_pulso','dr20_amanecer','y22'];
+  for(let k=0;k<rescueChoices.length;k++){
+    await rescuer.locator('.choice[data-choice="'+rescueChoices[k]+'"]').click();
+    const current=(await snapshot(rescuer)).scene;
+    check('Ruta de rescate: '+rescueStops[k],current===rescueStops[k],current);
+  }
+  check('Rescate conserva consecuencia',!!(await snapshot(rescuer)).flags.dr20FamiliasSalvas);
+  check('Rescate recordado tras la batalla',await rescuer.locator('.story').innerText().then(t=>t.includes('Taren y Lysa rescataron')));
+  await rescueContext.close();
 
   const dark=await browser.newContext({viewport:{width:1365,height:850},reducedMotion:'reduce'});
   const seeded=JSON.parse(dragonSave);
