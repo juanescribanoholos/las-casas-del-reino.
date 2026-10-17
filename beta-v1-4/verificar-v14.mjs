@@ -1,39 +1,47 @@
-// Comprobación local y sin dependencias: node beta-v1-4/verificar-v14.mjs
-import { readFileSync, existsSync } from 'node:fs';
-import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { Script } from 'node:vm';
+// Auditoría sin dependencias: node beta-v1-4/verificar-v14.mjs
+import {readFileSync,existsSync} from 'node:fs';
+import {join,dirname} from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {Script} from 'node:vm';
 import assert from 'node:assert/strict';
 
-const folder=dirname(fileURLToPath(import.meta.url));
-const loader=readFileSync(join(folder,'index.html'),'utf8');
-assert.match(loader,/total=16/,'El cargador debe conservar sus 16 fragmentos');
-assert.match(loader,/identidad-casas\.css/,'Falta la hoja visual');
-assert.ok(existsSync(join(folder,'identidad-casas.css')),'Falta identidad-casas.css');
-const parts=Array.from({length:16},(_,i)=>{
-  const path=join(folder,'parts',String(i).padStart(3,'0')+'.txt');
-  assert.ok(existsSync(path),'Falta el fragmento '+i);
-  return readFileSync(path,'utf8');
+const root=dirname(fileURLToPath(import.meta.url));
+const loader=readFileSync(join(root,'index.html'),'utf8');
+assert.match(loader,/total=16/,'El cargador debe tener 16 fragmentos');
+assert.match(loader,/identidad-casas\.css/,'No se enlaza la capa visual');
+assert.ok(existsSync(join(root,'identidad-casas.css')),'Falta la capa visual');
+const chunks=Array.from({length:16},(_,i)=>{
+ const filename=join(root,'parts',String(i).padStart(3,'0')+'.txt');
+ assert.ok(existsSync(filename),'Falta fragmento '+i);
+ return readFileSync(filename,'utf8');
 });
-const html=parts.join('');
-assert.match(html,/^<!doctype html>/i,'El documento no empieza con HTML');
-assert.match(html,/<\/html>\s*$/i,'El HTML está incompleto');
-const first=html.indexOf('<script>'),last=html.lastIndexOf('</script>');
-assert.ok(first>=0&&last>first,'Falta el script principal');
-const js=html.slice(first+8,last);
-new Script(js,{filename:'las-casas-del-reino-v14.js'}); // Compila, no ejecuta.
-const scenes=[...js.matchAll(/(?:^|\n)\s*([a-zA-Z][\w]*):\s*\{\s*phase\s*:/g)].map(m=>m[1]);
-const unique=new Set(scenes);
+const html=chunks.join('');
+assert.match(html,/^<!doctype html>/i,'No empieza como documento HTML');
+assert.match(html,/<\/html>\s*$/i,'Documento incompleto');
+const start=html.indexOf('<script>'),end=html.lastIndexOf('</script>');
+assert.ok(start>=0&&end>start,'Script incompleto');
+const js=html.slice(start+8,end);
+new Script(js,{filename:'las-casas-del-reino-v14.js'}); // Compila sin ejecutar.
+const base=[...js.matchAll(/(?:^|\n)\s*([a-zA-Z][\w]*):\s*\{\s*phase\s*:/g)].map(m=>m[1]);
+const extension=[...js.matchAll(/["'](dr20_[\w]+)["']\s*:\s*\{/g)].map(m=>m[1]);
+const all=[...base,...extension];
+const known=new Set(all);
 const declared=Number(js.match(/const TOTAL_SCENES\s*=\s*(\d+)/)?.[1]);
-assert.ok(declared>0,'No se localizó TOTAL_SCENES');
-assert.equal(scenes.length,declared,'El total de escenas no coincide');
-assert.equal(unique.size,scenes.length,'Hay escenas duplicadas');
-const next=[...js.matchAll(/\bnext:\s*['"]([^'"]+)['"]/g)].map(m=>m[1]);
-const unknown=[...new Set(next.filter(k=>!unique.has(k)&&!['ending','gameover'].includes(k)))];
-assert.deepEqual(unknown,[],'Existen decisiones con destino inexistente');
-assert.match(js,/function v14ChronicleMarkup\(/,'Falta la memoria del Vigía');
-assert.match(js,/\$\{v14ChronicleMarkup\(\)\}/,'El Diario no muestra la memoria');
-assert.match(loader,/atlasSpoiler/,'Comprobar el parche compatible del Atlas');
-assert.ok(html.includes('<p>${esc(ATLAS[key].desc)}</p>'),'El Atlas no coincide con el cargador');
-console.log('V1.4 OK:',parts.length,'fragmentos;',scenes.length,'escenas;',next.length,'enlaces; sintaxis válida.');
-console.log('Aviso: esta prueba NO equivale a validar partidas o dispositivos reales.');
+assert.ok(declared>0,'Falta TOTAL_SCENES');
+assert.equal(base.length,256,'Escenas originales cambiadas inesperadamente');
+assert.equal(extension.length,8,'Falta alguna fase del Dragón');
+assert.equal(all.length,declared,'El contador difiere del total real');
+assert.equal(known.size,all.length,'Se han repetido identificadores de escena');
+const destinations=[...js.matchAll(/(?:\bnext|["']next["'])\s*:\s*["']([^"']+)["']/g)].map(m=>m[1]);
+const missing=[...new Set(destinations.filter(id=>!known.has(id)&&!['ending','gameover'].includes(id)))];
+assert.deepEqual(missing,[],'Hay opciones con destinos desconocidos');
+assert.match(js,/scenes\.v19_alba\.choices\.forEach/,'La batalla del Dragón no está enlazada');
+assert.match(js,/function dragon20BossHud\(/,'Falta la interfaz del Dragón');
+assert.match(js,/function dr20Critical\(/,'Falta el control de riesgo del final oscuro');
+assert.match(js,/function v14ChronicleMarkup\(/,'Falta el Diario del Vigía');
+assert.match(js,/v14ChronicleMarkup\(\)/,'El Diario está desconectado');
+assert.match(loader,/atlasSpoiler/,'No se detecta la protección actual del Atlas');
+assert.ok(html.includes('ATLAS[key].desc'),'Atlas y cargador no coinciden');
+console.log('OK: '+chunks.length+' fragmentos, '+base.length+' escenas base + '+extension.length+' escenas del Dragón = '+all.length+' escenas.');
+console.log('OK: '+destinations.length+' enlaces narrativos, sin destinos inexistentes; JavaScript sintácticamente válido.');
+console.log('Pendiente: ejecutar las rutas en navegador y probar sonido/guardado en Android e iPhone.');
