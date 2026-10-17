@@ -1,8 +1,8 @@
-name: QA Chrome - Mision Dragon V1.4
+name: QA Chrome - Cine y Ritmo V1.4
 
 on:
   push:
-    branches: [desarrollo-v1-4-dragon-epico]
+    branches: [desarrollo-v1-4-cine-ritmo]
     paths:
       - 'beta-v1-4/**'
       - '.github/workflows/qa-dragon-v14.yml'
