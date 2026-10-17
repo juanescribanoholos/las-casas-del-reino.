@@ -212,7 +212,7 @@ body[data-vigilia="true"] .choice:not(:disabled):hover,body[data-vigilia="true"]
 <script>
 (()=>{'use strict';
 const SAVE_KEY='casas_reino_v14_beta_github';
-const TOTAL_SCENES=256;
+const TOTAL_SCENES=264;
 const $=id=>document.getElementById(id);const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const cap=(v,a,b)=>Math.max(a,Math.min(b,v));
 const addClue=(s,k)=>{if(!s.clues.includes(k))s.clues.push(k)};
