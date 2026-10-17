@@ -4,9 +4,9 @@ const sound={
   enabled:false,current:null,desired:'corona',tracks:{},fadeFrame:null,
   volume:0.53,fx:null,fxCtx:null,visibilityPaused:false,
   mood(){
-    if(view==='home'||view==='naming')return 'corona';
+    if(view==='home'||view==='naming')return 'corona';if(view==='doom')return state?.doomKind==='dragon'?'dragon':'amenaza';
     if(view==='end')return 'legado';if(view==='explore'){return exploreSite==='hermandad'?'hermandad':exploreSite==='mandibula'?'amenaza':exploreSite==='diafragma'?'alianza':'cripta';}
-    if(view==='game'&&state){
+    if(view==='game'&&state){if(state.scene.startsWith('dr20_'))return 'dragon';
       if(state.scene==='bridge_e'||(state.scene.startsWith('e')&&state.scene!=='ending')){if(['e01','e07','e08','e19'].includes(state.scene))return 'dragon';if(['e17','e22','e23h'].includes(state.scene))return 'hermandad';if(['e24','e25'].includes(state.scene))return 'legado';return 'reconquista';}if(state.scene==='y21'||state.scene==='y25')return 'dragon';
       if(state.scene==='bridge_y'||/^y\d+x?$/.test(state.scene))return 'reconquista';
       if(['x18'].includes(state.scene))return 'dragon';
