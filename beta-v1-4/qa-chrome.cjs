@@ -17,6 +17,7 @@ function check(name,condition,details=''){
 async function boot(page){
   page.on('pageerror',e=>errors.push({type:'pageerror',message:String(e)}));
   page.on('console',m=>{if(m.type()==='error')errors.push({type:'console',message:m.text()})});
+  page.on('response',r=>{if(r.status()>=400)errors.push({type:'http',status:r.status(),url:r.url()})});
   await page.goto(URL,{waitUntil:'domcontentloaded',timeout:90000});
   await page.locator('.hero-home').waitFor({timeout:90000});
 }
@@ -77,6 +78,22 @@ async function run(){
   const dragonSave=JSON.stringify(pre.save);
   check('Dragon cargado en interfaz',await page.locator('.scene-title').innerText()==='CUANDO EL CIELO SE PARTIÓ');
   check('Panel cinematográfico visible',await page.locator('.dragon20-boss').isVisible());
+  await page.evaluate(()=>{
+    window.__musicQA=[];
+    const original=HTMLMediaElement.prototype.play;
+    HTMLMediaElement.prototype.play=function(){
+      const info={src:this.src.slice(0,38),state:'pending'};
+      window.__musicQA.push(info);
+      const p=original.call(this);
+      if(p&&p.then)p.then(()=>info.state='playing').catch(e=>info.state='rejected '+e.name);
+      return p;
+    };
+  });
+  await page.locator('[data-action="sound"]').first().click();
+  await page.waitForTimeout(1800);
+  const music=await page.evaluate(()=>({on:document.querySelector('[data-action="sound"]')?.getAttribute('aria-pressed'),plays:window.__musicQA||[]}));
+  results.push({name:'Música Dragón Chrome',pass:music.on==='true'&&music.plays.some(x=>x.state==='playing'),details:JSON.stringify(music)});
+  await page.locator('[data-action="sound"]').first().click();
   check('Tres rutas disponibles',await page.locator('.choice:not([disabled])').count()===3);
   await page.locator('[data-panel="journal"]').first().click();
   check('Diario muestra memoria',await page.locator('#modal').innerText().then(t=>t.includes('MEMORIA DEL CAMINO')));
