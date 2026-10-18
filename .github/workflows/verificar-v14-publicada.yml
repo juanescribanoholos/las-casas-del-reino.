@@ -1,0 +1,66 @@
+name: Verificar V1.4 publica y beta anterior
+
+on:
+  push:
+    branches: [desarrollo-v1-4-cine-ritmo]
+    paths:
+      - '.github/workflows/verificar-v14-publicada.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verificar-pages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Comprobar acceso público y archivos originales
+        env:
+          BASE: https://juanescribanoholos.github.io/las-casas-del-reino.
+        shell: bash
+        run: |
+          set -euo pipefail
+          fetch_check() {
+            local name="$1" path="$2" min="$3" file="/tmp/reino-response"
+            local code
+            code="$(curl -fsSL --retry 3 --retry-delay 2 --max-time 55 -w '%{http_code}' -o "$file" "$BASE$path")"
+            local bytes
+            bytes="$(wc -c < "$file")"
+            echo "PUBLIC_QA $name url=$BASE$path status=$code bytes=$bytes"
+            test "$code" = 200
+            test "$bytes" -gt "$min"
+          }
+          fetch_check beta_antigua / 1200
+          grep -q 'V1.2' /tmp/reino-response
+          fetch_check v14_loader /beta-v1-4/index.html 1500
+          grep -q 'const total=16' /tmp/reino-response
+          fetch_check v14_css /beta-v1-4/identidad-casas.css 5000
+          fetch_check v14_favicon /beta-v1-4/favicon.svg 150
+          for i in $(seq -w 0 15); do
+            file="$(printf '%03d' "$((10#$i))")"
+            fetch_check "parte_$file" "/beta-v1-4/parts/$file.txt" 1000
+          done
+          fetch_check motor_264 /beta-v1-4/parts/003.txt 100000
+          grep -q 'TOTAL_SCENES=264' /tmp/reino-response
+          echo 'PUBLIC_QA_RESULT PASS: V1.4 completa accesible y V1.2 antigua intacta'
+      - name: Instalar controlador de Chrome
+        run: npm install --no-save --ignore-scripts playwright@1.56.1
+      - name: Jugar partida completa DESDE el servidor publico
+        env:
+          GAME_URL: https://juanescribanoholos.github.io/las-casas-del-reino./beta-v1-4/
+        run: |
+          sed -i "s#const URL = 'http://127.0.0.1:8765/beta-v1-4/';#const URL = process.env.GAME_URL || 'http://127.0.0.1:8765/beta-v1-4/';#" beta-v1-4/qa-chrome.cjs
+          node beta-v1-4/qa-chrome.cjs
+      - name: Subir evidencias de producción
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verificacion-v14-publica
+          path: qa-artifacts/
+          if-no-files-found: ignore
+          retention-days: 7
