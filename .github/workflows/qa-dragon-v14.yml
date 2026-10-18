@@ -1,0 +1,43 @@
+name: QA Chrome - Cine y Ritmo V1.4
+
+on:
+  push:
+    branches: [desarrollo-v1-4-cine-ritmo]
+    paths:
+      - 'beta-v1-4/**'
+      - '.github/workflows/qa-dragon-v14.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qa-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright test driver
+        run: npm install --no-save --ignore-scripts playwright@1.56.1
+      - name: Find Chrome
+        run: |
+          which google-chrome || which google-chrome-stable
+          google-chrome --version || google-chrome-stable --version
+      - name: Launch local game server
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/reino-server.log 2>&1 &
+          sleep 3
+          curl -fsS http://127.0.0.1:8765/beta-v1-4/index.html > /dev/null
+      - name: Play through game in Chrome
+        run: node beta-v1-4/qa-chrome.cjs
+      - name: Upload browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-dragon-chrome-evidence
+          path: qa-artifacts/
+          if-no-files-found: ignore
+          retention-days: 7
