@@ -1,0 +1,66 @@
+name: Validar enlace gratis desde HOLOS
+on:
+  push:
+    branches: [desarrollo-v1-4-cine-ritmo]
+    paths:
+      - '.github/workflows/verificar-holos-publico.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  prueba-publica:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Comprobar ruta web y origen GitHub Pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          for URL in "https://juanescribanoholos.lovable.app/las-casas-del-reino" "https://juanescribanoholos.github.io/las-casas-del-reino./beta-v1-4/"; do
+            code="$(curl -L --retry 3 --max-time 60 -sS -o /tmp/last-check.html -w '%{http_code}' "$URL")"
+            echo "HTTP_TEST URL=$URL status=$code bytes=$(wc -c < /tmp/last-check.html)"
+            test "$code" = 200
+          done
+      - name: Instalar Playwright
+        run: npm install --no-save --ignore-scripts playwright@1.56.1
+      - name: Comprobar botón Jugar gratis en producción
+        shell: bash
+        run: |
+          node <<'NODE'
+          const {chromium}=require('playwright');
+          const assert=require('node:assert/strict');
+          (async()=>{
+            const browser=await chromium.launch({channel:'chrome',headless:true,args:['--no-sandbox']});
+            try{
+              const context=await browser.newContext({viewport:{width:390,height:844},reducedMotion:'reduce'});
+              const page=await context.newPage();
+              const failures=[];
+              page.on('pageerror',x=>failures.push(String(x)));
+              const landing='https://juanescribanoholos.lovable.app/las-casas-del-reino';
+              const game='https://juanescribanoholos.github.io/las-casas-del-reino./beta-v1-4/';
+              await page.goto(landing,{waitUntil:'domcontentloaded',timeout:60000});
+              await page.getByRole('link',{name:/jugar gratis/i}).first().waitFor({timeout:60000});
+              const links=await page.getByRole('link',{name:/jugar gratis/i}).evaluateAll(els=>els.map(x=>x.href));
+              console.log('LANDING_CTA '+JSON.stringify(links));
+              assert(links.length>=1,'CTA jugar gratis no encontrada');
+              assert(links.every(x=>x===game),'CTA no apunta a juego V1.4 definitivo');
+              assert(!(await page.getByText('Acceso en preparación',{exact:true}).isVisible().catch(()=>false)),'Sigue modo preparación');
+              const robots=await page.locator('meta[name=robots]').getAttribute('content');
+              console.log('SEO_ROBOTS '+robots);
+              const dimensions=await page.evaluate(()=>({width:innerWidth,scrollWidth:document.documentElement.scrollWidth}));
+              console.log('MOBILE '+JSON.stringify(dimensions));
+              assert(dimensions.scrollWidth<=dimensions.width+8,'Desbordamiento horizontal móvil');
+              await page.screenshot({path:'/tmp/holos-landing.png',fullPage:true});
+              await page.goto(game,{waitUntil:'domcontentloaded',timeout:90000});
+              await page.locator('.hero-home').waitFor({timeout:90000});
+              console.log('GAME_PUBLIC_BETA_V14_PRESENT');
+              assert(!failures.length,JSON.stringify(failures));
+              console.log('HOL0S_LAUNCH_TEST PASS: web HOLOS y videojuego gratuito funcionan en la URL pública');
+              await context.close();
+            }finally{await browser.close()}
+          })().catch(e=>{console.error('HOL0S_LAUNCH_TEST FAILED '+(e.stack||e));process.exitCode=1});
+          NODE
